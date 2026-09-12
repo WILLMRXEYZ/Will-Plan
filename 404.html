@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>计划执行系统</title>
+<style>
+  html,body{height:100%;margin:0;background:#0A0B14;color:#8A8FA8;
+    font:14px -apple-system,BlinkMacSystemFont,sans-serif;
+    display:flex;align-items:center;justify-content:center}
+</style>
+<script>
+/**
+ * GitHub Pages 找不到路径时会落到这里。
+ * 把用户送回应用入口，剩下的交给前端路由处理。
+ * 子路径部署时，仓库名是 pathname 的第一段。
+ */
+(function () {
+  var parts = location.pathname.split('/').filter(Boolean);
+  // github.io 的项目站点第一段是仓库名；自定义域名则没有这一层
+  var base = location.hostname.indexOf('github.io') >= 0 && parts.length > 0
+    ? '/' + parts[0] + '/'
+    : '/';
+  if (location.pathname !== base) location.replace(base);
+})();
+</script>
+</head>
+<body>正在返回…</body>
+</html>
