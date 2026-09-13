@@ -1035,6 +1035,7 @@ window.ArtClock = ArtClock;
     vec = [0, 0];
     doorArmed = false;              // 进来先解除武装
     updateCamera(true);
+    checkSpot(true);                // 切场景立刻重算，别留着旧状态
     post(&#x27;scene&#x27;, name);
   }
 
@@ -1053,16 +1054,19 @@ window.ArtClock = ArtClock;
   }
 
   /** 海岸的钓点：进入范围就通知宿主弹出钓鱼窗口 */
-  function checkSpot() {
-    if (state.scene !== &#x27;coast&#x27;) {
-      if (state.atSpot) { state.atSpot = false; post(&#x27;atSpot&#x27;, false); }
-      return;
+  /**
+   * 钓点资格：场景 + 距离 + 有没有竿 + 当前阶段，四个条件一起判。
+   * 只信一个布尔值会出现「回到灯塔还显示可以下竿」。
+   */
+  function checkSpot(force) {
+    var ok = false;
+    if (state.scene === &#x27;coast&#x27; &amp;&amp; fishing.phase === &#x27;idle&#x27;) {
+      var f = M.scenes.coast.fishingAnchor;
+      ok = Math.hypot(state.feet[0] - f[0], state.feet[1] - f[1]) &lt;= 28;
     }
-    var f = M.scenes.coast.fishingAnchor;
-    var near = Math.hypot(state.feet[0] - f[0], state.feet[1] - f[1]) &lt;= 28;
-    if (near !== state.atSpot) {
-      state.atSpot = near;
-      post(&#x27;atSpot&#x27;, near);
+    if (force || ok !== state.atSpot) {
+      state.atSpot = ok;
+      post(&#x27;atSpot&#x27;, { near: ok, hasRod: state.hasRod, scene: state.scene });
     }
   }
 
@@ -1135,24 +1139,24 @@ window.ArtClock = ArtClock;
       tryMove(mx * SPEED * dt, my * SPEED * dt);
       checkDoors(mx, my);
       checkChest();
-      checkSpot();
+      checkSpot(false);
     }
 
     updateCamera(false);
+    checkSpot(false);
 
-    // 渲染器是按 288×512 画的，不知道摄像机的存在。
-    // 平移之后它的程序化填充只盖住世界的 0..288，右边一条会露出上一帧的残留。
-    // 所以先把整块画布铺上底色，再平移作画。
+    // 摄像机只变换一次：渲染器内部会按 o.camera 平移，外面绝对不能再平移一遍。
+    // 之前两边都做，画面偏了 56 像素，点击位置跟角色对不上。
     ctx.save();
     ctx.fillStyle = state.scene === &#x27;coast&#x27; ? &#x27;#14243A&#x27; : &#x27;#0A0B14&#x27;;
     ctx.fillRect(0, 0, VW, VH);
-    ctx.translate(-Math.round(state.camera[0]), -Math.round(state.camera[1]));
     art.draw(ctx, state.scene, {
       t: state.reduceMotion ? 0 : o.t,
       hours: o.hours,
       wake: o.wake,
       weather: state.weather,
       hud: false,
+      camera: state.camera,
       actor: { feet: state.feet, direction: state.dir, walking: state.walking },
     });
     ctx.restore();
@@ -1284,5 +1288,5 @@ window.ArtClock = ArtClock;
 })();
 &lt;/script&gt;
 &lt;/body&gt;
-&lt;/html&gt;" title="Will Fish" style="flex:1;width:100%;height:100%;border:none;background:#0A0B14" sandbox="allow-scripts"></iframe><div class="css-g5y9jx r-1awozwy r-1p0dtai r-1777fci r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-633pao"><div dir="auto" class="css-146c3p1 r-15zsyk4 r-n6v787">正在唤醒灯塔…</div></div></div></div><!--/$--></div></div></div></div></div><!--/$--></div></div><script src="/Will-Plan/_expo/static/js/web/entry-2d2a138a96def0f16c38956a156f630f.js" defer></script>
+&lt;/html&gt;" title="Will Fish" style="flex:1;width:100%;height:100%;border:none;background:#0A0B14" sandbox="allow-scripts"></iframe><div class="css-g5y9jx r-1awozwy r-1p0dtai r-1777fci r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-633pao"><div dir="auto" class="css-146c3p1 r-15zsyk4 r-n6v787">正在唤醒灯塔…</div></div></div></div><!--/$--></div></div></div></div></div><!--/$--></div></div><script src="/Will-Plan/_expo/static/js/web/entry-89c6df116bb083116774bbecaca9c3cb.js" defer></script>
 </body></html>
