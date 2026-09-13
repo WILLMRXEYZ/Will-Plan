@@ -92,6 +92,7 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 .r-t23y2h{border-bottom-left-radius:14px;border-bottom-right-radius:14px;border-top-left-radius:14px;border-top-right-radius:14px;}
 .r-t60dpp{padding:0px;}
 .r-u9z9pf{border-bottom-color:rgba(38,42,61,1.00);border-left-color:rgba(38,42,61,1.00);border-right-color:rgba(38,42,61,1.00);border-top-color:rgba(38,42,61,1.00);}
+.r-v9uzvu{border-bottom-left-radius:105px;border-bottom-right-radius:105px;border-top-left-radius:105px;border-top-right-radius:105px;}
 .r-wg31gx{border-bottom-color:rgba(49,53,56,1.00);border-left-color:rgba(49,53,56,1.00);border-right-color:rgba(49,53,56,1.00);border-top-color:rgba(49,53,56,1.00);}
 .r-whuqzp{padding:18px;}
 .r-xa2vdj{border-bottom-width:2.5px;border-left-width:2.5px;border-right-width:2.5px;border-top-width:2.5px;}
@@ -311,6 +312,7 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 .r-1loqt21{cursor:pointer;}
 .r-1lxl8vk{margin-top:60px;}
 .r-1mcorv5{width:14px;}
+.r-1mi0q7o{padding-bottom:10px;}
 .r-1mlwlqe{flex-basis:auto;}
 .r-1mrlafo{background-position:0;}
 .r-1muvv40{animation-iteration-count:infinite;}
@@ -359,6 +361,7 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 .r-1ui5ee8{font-size:32px;}
 .r-1ujkv8a{aspect-ratio:1;}
 .r-1upy0dh{letter-spacing:2px;}
+.r-1urfncx{height:210px;}
 .r-1v30vm{background-color:rgba(47,107,85,1.00);}
 .r-1v5bw7l{color:rgba(63,217,160,1.00);}
 .r-1vr29t4{font-weight:800;}
@@ -371,6 +374,7 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 .r-1wzrnnt{margin-top:16px;}
 .r-1x0uki6{margin-top:20px;}
 .r-1x35g6{font-size:24px;}
+.r-1x9gqwl{max-height:52px;}
 .r-1xcajam{position:fixed;}
 .r-1xnzce8{-moz-user-select:text;-webkit-user-select:text;user-select:text;}
 .r-1xpsq9i{box-shadow:0px 3px 3px rgba(0, 0, 0, 0.33);}
@@ -378,6 +382,7 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 .r-1y00bll{gap:9px;}
 .r-1yab2pn{min-width:84px;}
 .r-1yef0xd{animation-name:r-11cv4x;}
+.r-1yvhtrz{width:32px;}
 .r-25kp3t{min-width:34px;}
 .r-2eszeu::-webkit-scrollbar{display:none}
 .r-2eszeu{scrollbar-width:none;}
@@ -394,6 +399,7 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 .r-4d76ec{height:200px;}
 .r-4gszlv{background-size:cover;}
 .r-4v7adb{height:5px;}
+.r-4xazgd{width:210px;}
 .r-5fcqz0{line-height:17px;}
 .r-5orghg{width:34px;}
 .r-5oul0u{margin-bottom:8px;}
@@ -495,6 +501,7 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 .r-lpb231{height:168px;}
 .r-lrsllp{width:24px;}
 .r-lrvibr{-moz-user-select:none;-webkit-user-select:none;user-select:none;}
+.r-mabqd8{height:32px;}
 .r-majxgm{font-weight:500;}
 .r-mfh4gg{scroll-snap-type:x mandatory;}
 .r-mhe3cw{z-index:10;}
@@ -537,6 +544,7 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 .r-ubezar{font-size:16px;}
 .r-ud0q2t{letter-spacing:1px;}
 .r-uho16t{font-size:34px;}
+.r-usgzl9{width:44px;}
 .r-vacyoi{padding-bottom:64px;}
 .r-van48c{caret-color:transparent;}
 .r-vboj7i{top:-7px;}
@@ -1051,7 +1059,7 @@ window.ArtClock = ArtClock;
       return;
     }
     var f = M.scenes.coast.fishingAnchor;
-    var near = Math.hypot(state.feet[0] - f[0], state.feet[1] - f[1]) &lt;= 20;
+    var near = Math.hypot(state.feet[0] - f[0], state.feet[1] - f[1]) &lt;= 28;
     if (near !== state.atSpot) {
       state.atSpot = near;
       post(&#x27;atSpot&#x27;, near);
@@ -1083,13 +1091,14 @@ window.ArtClock = ArtClock;
     var sc = M.scenes[state.scene];
     var size = sc.size || [VW, VH];
     if (size[0] &lt;= VW &amp;&amp; size[1] &lt;= VH) { state.camera = [0, 0]; return; }
-    // 目标：让角色脚底落在屏幕 50% 宽、65% 高
-    var tx = state.feet[0] - VW * 0.5;
+    // 横向固定用素材包给的机位，跟着角色横移会把右边拉出没画的区域
+    var fixedX = (sc.defaultCamera &amp;&amp; sc.defaultCamera[0]) || 0;
+    var tx = fixedX;
     var ty = state.feet[1] - VH * 0.65;
     tx = Math.max(0, Math.min(size[0] - VW, tx));
     ty = Math.max(0, Math.min(size[1] - VH, ty));
     if (snap) { state.camera = [tx, ty]; return; }
-    state.camera[0] += (tx - state.camera[0]) * 0.08;
+    state.camera[0] = tx;                                  // 横向不插值，直接固定
     state.camera[1] += (ty - state.camera[1]) * 0.08;
   }
 
@@ -1131,8 +1140,12 @@ window.ArtClock = ArtClock;
 
     updateCamera(false);
 
-    // 绘制
+    // 渲染器是按 288×512 画的，不知道摄像机的存在。
+    // 平移之后它的程序化填充只盖住世界的 0..288，右边一条会露出上一帧的残留。
+    // 所以先把整块画布铺上底色，再平移作画。
     ctx.save();
+    ctx.fillStyle = state.scene === &#x27;coast&#x27; ? &#x27;#14243A&#x27; : &#x27;#0A0B14&#x27;;
+    ctx.fillRect(0, 0, VW, VH);
     ctx.translate(-Math.round(state.camera[0]), -Math.round(state.camera[1]));
     art.draw(ctx, state.scene, {
       t: state.reduceMotion ? 0 : o.t,
@@ -1271,5 +1284,5 @@ window.ArtClock = ArtClock;
 })();
 &lt;/script&gt;
 &lt;/body&gt;
-&lt;/html&gt;" title="Will Fish" style="flex:1;width:100%;height:100%;border:none;background:#0A0B14" sandbox="allow-scripts"></iframe><div class="css-g5y9jx r-1awozwy r-1p0dtai r-1777fci r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-633pao"><div dir="auto" class="css-146c3p1 r-15zsyk4 r-n6v787">正在唤醒灯塔…</div></div></div></div><!--/$--></div></div></div></div></div><!--/$--></div></div><script src="/Will-Plan/_expo/static/js/web/entry-a17ee39bdf6ce1565c0b501dbb031bb5.js" defer></script>
+&lt;/html&gt;" title="Will Fish" style="flex:1;width:100%;height:100%;border:none;background:#0A0B14" sandbox="allow-scripts"></iframe><div class="css-g5y9jx r-1awozwy r-1p0dtai r-1777fci r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-633pao"><div dir="auto" class="css-146c3p1 r-15zsyk4 r-n6v787">正在唤醒灯塔…</div></div></div></div><!--/$--></div></div></div></div></div><!--/$--></div></div><script src="/Will-Plan/_expo/static/js/web/entry-2d2a138a96def0f16c38956a156f630f.js" defer></script>
 </body></html>
