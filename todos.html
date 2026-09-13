@@ -1,5 +1,6 @@
 <!DOCTYPE html><html  lang="zh-CN"><head><title data-rh="true"></title><meta charSet="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>计划执行系统</title><link rel="manifest" href="./manifest.json"/><meta name="theme-color" content="#0A0B14"/><meta name="apple-mobile-web-app-capable" content="yes"/><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/><meta name="apple-mobile-web-app-title" content="计划"/><link rel="apple-touch-icon" href="./icon-192.png"/><style id="expo-reset">#root,body,html{height:100%}body{overflow:hidden}#root{display:flex}</style><style>
-  html, body, #root { height: 100%; background-color: #0A0B14; }
+  /* Safari 的 100vh 不扣除底部工具栏，内容会被切掉。dvh 跟着可见区域走 */
+  html, body, #root { height: 100%; height: 100dvh; background-color: #0A0B14; }
   body {
     margin: 0;
     overscroll-behavior: none;
@@ -51,6 +52,7 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 .r-1pcd2l5{padding:20px;}
 .r-1phboty{border-bottom-style:solid;border-left-style:solid;border-right-style:solid;border-top-style:solid;}
 .r-1px6drs{border-bottom-left-radius:7px;border-bottom-right-radius:7px;border-top-left-radius:7px;border-top-right-radius:7px;}
+.r-1q6l0fw{border-bottom-left-radius:94px;border-bottom-right-radius:94px;border-top-left-radius:94px;border-top-right-radius:94px;}
 .r-1q9bdsx{border-bottom-left-radius:12px;border-bottom-right-radius:12px;border-top-left-radius:12px;border-top-right-radius:12px;}
 .r-1qsk4np{overflow-x:clip;overflow-y:clip;}
 .r-1rf8fdq{border-bottom-width:1.5px;border-left-width:1.5px;border-right-width:1.5px;border-top-width:1.5px;}
@@ -61,13 +63,13 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 .r-1uu6nss{padding:5px;}
 .r-1wbguk4{border-bottom-left-radius:54px;border-bottom-right-radius:54px;border-top-left-radius:54px;border-top-right-radius:54px;}
 .r-1xfd6ze{border-bottom-left-radius:8px;border-bottom-right-radius:8px;border-top-left-radius:8px;border-top-right-radius:8px;}
-.r-1xtugu0{border-bottom-left-radius:110px;border-bottom-right-radius:110px;border-top-left-radius:110px;border-top-right-radius:110px;}
 .r-1ylenci{border-bottom-left-radius:15px;border-bottom-right-radius:15px;border-top-left-radius:15px;border-top-right-radius:15px;}
 .r-3xxvc6{border-bottom-color:rgba(255,212,112,1.00);border-left-color:rgba(255,212,112,1.00);border-right-color:rgba(255,212,112,1.00);border-top-color:rgba(255,212,112,1.00);}
 .r-4a18lf{border-bottom-color:rgba(255,0,0,1.00);border-left-color:rgba(255,0,0,1.00);border-right-color:rgba(255,0,0,1.00);border-top-color:rgba(255,0,0,1.00);}
 .r-5gtviv{border-bottom-color:rgba(60,65,102,1.00);border-left-color:rgba(60,65,102,1.00);border-right-color:rgba(60,65,102,1.00);border-top-color:rgba(60,65,102,1.00);}
 .r-5t7aoe{border-bottom-left-radius:17px;border-bottom-right-radius:17px;border-top-left-radius:17px;border-top-right-radius:17px;}
 .r-60ke3l{border-bottom-color:rgba(0,128,0,1.00);border-left-color:rgba(0,128,0,1.00);border-right-color:rgba(0,128,0,1.00);border-top-color:rgba(0,128,0,1.00);}
+.r-61frxv{border-bottom-left-radius:113px;border-bottom-right-radius:113px;border-top-left-radius:113px;border-top-right-radius:113px;}
 .r-6t2glc{border-bottom-left-radius:40px;border-bottom-right-radius:40px;border-top-left-radius:40px;border-top-right-radius:40px;}
 .r-9x6qib{border-bottom-color:rgba(204,214,221,1.00);border-left-color:rgba(204,214,221,1.00);border-right-color:rgba(204,214,221,1.00);border-top-color:rgba(204,214,221,1.00);}
 .r-cdmcib{border-bottom-left-radius:3px;border-bottom-right-radius:3px;border-top-left-radius:3px;border-top-right-radius:3px;}
@@ -89,7 +91,6 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 .r-t23y2h{border-bottom-left-radius:14px;border-bottom-right-radius:14px;border-top-left-radius:14px;border-top-right-radius:14px;}
 .r-t60dpp{padding:0px;}
 .r-u9z9pf{border-bottom-color:rgba(38,42,61,1.00);border-left-color:rgba(38,42,61,1.00);border-right-color:rgba(38,42,61,1.00);border-top-color:rgba(38,42,61,1.00);}
-.r-v9uzvu{border-bottom-left-radius:105px;border-bottom-right-radius:105px;border-top-left-radius:105px;border-top-right-radius:105px;}
 .r-wg31gx{border-bottom-color:rgba(49,53,56,1.00);border-left-color:rgba(49,53,56,1.00);border-right-color:rgba(49,53,56,1.00);border-top-color:rgba(49,53,56,1.00);}
 .r-whuqzp{padding:18px;}
 .r-xa2vdj{border-bottom-width:2.5px;border-left-width:2.5px;border-right-width:2.5px;border-top-width:2.5px;}
@@ -177,6 +178,7 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 .r-11yh6sk{overflow-x:hidden;}
 .r-12emxyh{background-color:rgba(255,212,112,0.33);}
 .r-12f6czt{top:17px;}
+.r-12kfsgm{width:230px;}
 .r-12txzs4{background-color:rgba(63,217,160,0.80);}
 .r-12vffkv>* {pointer-events:auto;}
 .r-12vffkv{pointer-events:none!important;}
@@ -221,6 +223,7 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 .r-19oahor{font-size:64px;}
 .r-19qrga8{margin-top:3px;}
 .r-19wmn03{width:20px;}
+.r-19yb0eb{height:188px;}
 .r-19z077z{touch-action:none;}
 .r-1a2p6p6{-webkit-text-decoration-style:solid;text-decoration-style:solid;}
 .r-1a8r3js{margin-bottom:11px;}
@@ -337,11 +340,9 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 .r-1ui5ee8{font-size:32px;}
 .r-1ujkv8a{aspect-ratio:1;}
 .r-1upy0dh{letter-spacing:2px;}
-.r-1urfncx{height:210px;}
 .r-1v5bw7l{color:rgba(63,217,160,1.00);}
 .r-1vr29t4{font-weight:800;}
 .r-1w6e6rj{flex-wrap:wrap;}
-.r-1w88a7h{width:220px;}
 .r-1waauvx{background-color:rgba(18,23,42,1.00);}
 .r-1wbh5a2{flex-shrink:1;}
 .r-1wtj0ep{justify-content:space-between;}
@@ -371,9 +372,9 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 .r-4d76ec{height:200px;}
 .r-4gszlv{background-size:cover;}
 .r-4v7adb{height:5px;}
-.r-4xazgd{width:210px;}
 .r-5orghg{width:34px;}
 .r-5oul0u{margin-bottom:8px;}
+.r-5vf7qs{width:188px;}
 .r-5w71tg{background-color:rgba(15,17,25,1.00);}
 .r-60vfwk{min-width:1px;}
 .r-633pao>* {pointer-events:none;}
@@ -388,6 +389,7 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 .r-726pan{width:31px;}
 .r-74jtu8{line-height:39px;}
 .r-76blku{height:21px;}
+.r-77llbj{opacity:0.22;}
 .r-7a6vnx{text-shadow:0px 0px 2.5px rgba(10,11,20,1.00);}
 .r-7cikom{font-size:inherit;}
 .r-7ptqe7{line-height:23px;}
@@ -403,7 +405,6 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 .r-9arsxg{max-height:60px;}
 .r-9aw3ui{gap:4px;}
 .r-9daxd3{animation-duration:250ms;}
-.r-9zvdko{height:220px;}
 .r-a023e6{font-size:15px;}
 .r-a036xd{background-color:rgba(0,0,0,0.58);}
 .r-a1ub67{margin-top:11px;}
@@ -412,7 +413,9 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 .r-agouwx{transform:translateZ(0);}
 .r-ah5dr5>* {pointer-events:none;}
 .r-ah5dr5{pointer-events:auto!important;}
+.r-aqnst0{width:226px;}
 .r-aruset{font-weight:200;}
+.r-bajy9j{height:230px;}
 .r-bi4vy9{transform:translateY(100%);}
 .r-bnwqim{position:relative;}
 .r-bt1l66{min-height:20px;}
@@ -437,6 +440,7 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 .r-eu3ka{height:40px;}
 .r-evnaw{font-size:22px;}
 .r-f1odvy{margin-bottom:6px;}
+.r-f2a5c0{height:226px;}
 .r-fdjqy7{text-align:left;}
 .r-fyomxp{margin-top:34px;}
 .r-g3mlsw{animation-name:r-t2lo5v;}
@@ -540,5 +544,5 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 @keyframes r-imtty0{0%{opacity:0;}100%{opacity:1;}}
 @keyframes r-q67da2{0%{transform:translateX(-100%);}100%{transform:translateX(400%);}}
 @keyframes r-t2lo5v{0%{opacity:1;}100%{opacity:0;}}</style><link rel="icon" href="/Will-Plan/favicon.ico"/><script type="module">globalThis.__EXPO_ROUTER_HYDRATE__=true;</script></head><body><div id="root"><div class="css-g5y9jx r-13awgt0"><!--$--><div class="css-g5y9jx r-13awgt0"><div style="position:absolute;left:0;right:0;top:0;bottom:0;pointer-events:none;visibility:hidden"></div><div class="css-g5y9jx r-13awgt0"><div class="css-g5y9jx r-13awgt0 r-1p0dtai r-1d2f490 r-u8s1d r-zchlnj r-ipm5af" style="background-color:rgba(242,242,242,1.00);display:flex"><div class="css-g5y9jx r-12vffkv r-184en5c"><div class="css-g5y9jx r-12vffkv" style="height:64px"><div class="css-g5y9jx r-1p0dtai r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-12vffkv"><div class="css-g5y9jx r-qklmqi r-13awgt0" style="border-bottom-color:rgba(216,216,216,1.00);pointer-events:auto;background-color:rgba(10,11,20,1.00)"></div></div><div class="css-g5y9jx r-633pao" style="height:0px"></div><div class="css-g5y9jx r-1oszu61 r-13awgt0 r-18u37iz r-12vffkv"><div class="css-g5y9jx r-1awozwy r-18u37iz r-1h0z5md r-12vffkv" style="margin-left:0px"></div><div class="css-g5y9jx r-1777fci r-12vffkv" style="max-width:-32px;margin-right:16px;margin-left:16px"><h1 dir="auto" aria-level="1" role="heading" class="css-146c3p1 r-dnmrzs r-1udh08x r-1udbk01 r-3s2u2q r-1iln25a" style="color:rgba(232,233,245,1.00);font-family:system-ui, &quot;Segoe UI&quot;, Roboto, Helvetica, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;;font-weight:500;font-size:16px">待办事项</h1></div><div class="css-g5y9jx r-1awozwy r-18u37iz r-17s6mgv r-12vffkv r-1iusvr4 r-16y2uox" style="margin-right:0px"></div></div></div></div><div class="css-g5y9jx r-13awgt0"><div class="css-g5y9jx r-13awgt0" style="background-color:rgba(10,11,20,1.00)"><!--$--><div class="css-g5y9jx r-150rngu r-eqz5dr r-16y2uox r-1wbh5a2 r-11yh6sk r-1rnoaur r-agouwx r-1ab6au r-13awgt0"><div class="css-g5y9jx" style="padding-left:16px;padding-right:16px;padding-top:16px;padding-bottom:60px"><div class="css-g5y9jx r-mpd1vr r-1867qdf r-1ifxtd0 r-1slz7xr"><div dir="auto" class="css-146c3p1 r-1mxyk0t r-n6v787 r-10yl4k">待办不判定烧毁。约人办事没做成是现实问题，不是拖延，不该在日程上留焦痕。<!-- -->
-<!-- -->开了提醒的，前一天会在首页顶部提示。</div></div><div tabindex="0" class="css-g5y9jx r-1loqt21 r-1otgn73" style="margin-bottom:10px"><div class="css-g5y9jx r-1awozwy r-1k7z1ys r-cpet4d r-ywh0we r-u9wvl5" style="transform:scale(1);opacity:1"><div dir="auto" class="css-146c3p1 r-1rinrc7 r-a023e6">＋ 新建待办</div></div></div><div dir="auto" class="css-146c3p1 r-175k71m r-1enofrn r-14yzgew r-1ifxtd0">点标题可以编辑，编辑里能把它移成习惯或项目工作块。</div><div dir="auto" class="css-146c3p1 r-15zsyk4 r-n6v787 r-a7330m r-q4m81j">接下来三周没有待办</div></div></div><!--/$--></div></div></div></div></div><!--/$--></div></div><script src="/Will-Plan/_expo/static/js/web/entry-89c6df116bb083116774bbecaca9c3cb.js" defer></script>
+<!-- -->开了提醒的，前一天会在首页顶部提示。</div></div><div tabindex="0" class="css-g5y9jx r-1loqt21 r-1otgn73" style="margin-bottom:10px"><div class="css-g5y9jx r-1awozwy r-1k7z1ys r-cpet4d r-ywh0we r-u9wvl5" style="transform:scale(1);opacity:1"><div dir="auto" class="css-146c3p1 r-1rinrc7 r-a023e6">＋ 新建待办</div></div></div><div dir="auto" class="css-146c3p1 r-175k71m r-1enofrn r-14yzgew r-1ifxtd0">点标题可以编辑，编辑里能把它移成习惯或项目工作块。</div><div dir="auto" class="css-146c3p1 r-15zsyk4 r-n6v787 r-a7330m r-q4m81j">接下来三周没有待办</div></div></div><!--/$--></div></div></div></div></div><!--/$--></div></div><script src="/Will-Plan/_expo/static/js/web/entry-47564e5b419d02fa4df2064bc6661d37.js" defer></script>
 </body></html>

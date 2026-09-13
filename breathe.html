@@ -1,5 +1,6 @@
 <!DOCTYPE html><html  lang="zh-CN"><head><title data-rh="true"></title><meta charSet="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>计划执行系统</title><link rel="manifest" href="./manifest.json"/><meta name="theme-color" content="#0A0B14"/><meta name="apple-mobile-web-app-capable" content="yes"/><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/><meta name="apple-mobile-web-app-title" content="计划"/><link rel="apple-touch-icon" href="./icon-192.png"/><style id="expo-reset">#root,body,html{height:100%}body{overflow:hidden}#root{display:flex}</style><style>
-  html, body, #root { height: 100%; background-color: #0A0B14; }
+  /* Safari 的 100vh 不扣除底部工具栏，内容会被切掉。dvh 跟着可见区域走 */
+  html, body, #root { height: 100%; height: 100dvh; background-color: #0A0B14; }
   body {
     margin: 0;
     overscroll-behavior: none;
@@ -46,6 +47,7 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 .r-1n6cyw{border-bottom-color:rgba(74,42,42,1.00);border-left-color:rgba(74,42,42,1.00);border-right-color:rgba(74,42,42,1.00);border-top-color:rgba(74,42,42,1.00);}
 .r-1pcd2l5{padding:20px;}
 .r-1phboty{border-bottom-style:solid;border-left-style:solid;border-right-style:solid;border-top-style:solid;}
+.r-1q6l0fw{border-bottom-left-radius:94px;border-bottom-right-radius:94px;border-top-left-radius:94px;border-top-right-radius:94px;}
 .r-1q9bdsx{border-bottom-left-radius:12px;border-bottom-right-radius:12px;border-top-left-radius:12px;border-top-right-radius:12px;}
 .r-1qsk4np{overflow-x:clip;overflow-y:clip;}
 .r-1rvyss1{border-bottom-color:rgba(255,255,255,0.20);border-left-color:rgba(255,255,255,0.20);border-right-color:rgba(255,255,255,0.20);border-top-color:rgba(255,255,255,0.20);}
@@ -54,12 +56,12 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 .r-1udh08x{overflow-x:hidden;overflow-y:hidden;}
 .r-1uu6nss{padding:5px;}
 .r-1xfd6ze{border-bottom-left-radius:8px;border-bottom-right-radius:8px;border-top-left-radius:8px;border-top-right-radius:8px;}
-.r-1xtugu0{border-bottom-left-radius:110px;border-bottom-right-radius:110px;border-top-left-radius:110px;border-top-right-radius:110px;}
 .r-1ylenci{border-bottom-left-radius:15px;border-bottom-right-radius:15px;border-top-left-radius:15px;border-top-right-radius:15px;}
 .r-3xxvc6{border-bottom-color:rgba(255,212,112,1.00);border-left-color:rgba(255,212,112,1.00);border-right-color:rgba(255,212,112,1.00);border-top-color:rgba(255,212,112,1.00);}
 .r-4a18lf{border-bottom-color:rgba(255,0,0,1.00);border-left-color:rgba(255,0,0,1.00);border-right-color:rgba(255,0,0,1.00);border-top-color:rgba(255,0,0,1.00);}
 .r-5gtviv{border-bottom-color:rgba(60,65,102,1.00);border-left-color:rgba(60,65,102,1.00);border-right-color:rgba(60,65,102,1.00);border-top-color:rgba(60,65,102,1.00);}
 .r-60ke3l{border-bottom-color:rgba(0,128,0,1.00);border-left-color:rgba(0,128,0,1.00);border-right-color:rgba(0,128,0,1.00);border-top-color:rgba(0,128,0,1.00);}
+.r-61frxv{border-bottom-left-radius:113px;border-bottom-right-radius:113px;border-top-left-radius:113px;border-top-right-radius:113px;}
 .r-6t2glc{border-bottom-left-radius:40px;border-bottom-right-radius:40px;border-top-left-radius:40px;border-top-right-radius:40px;}
 .r-9x6qib{border-bottom-color:rgba(204,214,221,1.00);border-left-color:rgba(204,214,221,1.00);border-right-color:rgba(204,214,221,1.00);border-top-color:rgba(204,214,221,1.00);}
 .r-cpet4d{border-bottom-left-radius:999px;border-bottom-right-radius:999px;border-top-left-radius:999px;border-top-right-radius:999px;}
@@ -76,7 +78,6 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 .r-t23y2h{border-bottom-left-radius:14px;border-bottom-right-radius:14px;border-top-left-radius:14px;border-top-right-radius:14px;}
 .r-t60dpp{padding:0px;}
 .r-u9z9pf{border-bottom-color:rgba(38,42,61,1.00);border-left-color:rgba(38,42,61,1.00);border-right-color:rgba(38,42,61,1.00);border-top-color:rgba(38,42,61,1.00);}
-.r-v9uzvu{border-bottom-left-radius:105px;border-bottom-right-radius:105px;border-top-left-radius:105px;border-top-right-radius:105px;}
 .r-wg31gx{border-bottom-color:rgba(49,53,56,1.00);border-left-color:rgba(49,53,56,1.00);border-right-color:rgba(49,53,56,1.00);border-top-color:rgba(49,53,56,1.00);}
 .r-xoduu5{display:inline-flex;}
 .r-xyw6el{padding:12px;}
@@ -151,6 +152,7 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 .r-11v9fek{min-width:180px;}
 .r-11yh6sk{overflow-x:hidden;}
 .r-12f6czt{top:17px;}
+.r-12kfsgm{width:230px;}
 .r-12vffkv>* {pointer-events:auto;}
 .r-12vffkv{pointer-events:none!important;}
 .r-135wba7{line-height:24px;}
@@ -187,6 +189,7 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 .r-19oahor{font-size:64px;}
 .r-19qrga8{margin-top:3px;}
 .r-19wmn03{width:20px;}
+.r-19yb0eb{height:188px;}
 .r-19z077z{touch-action:none;}
 .r-1a2p6p6{-webkit-text-decoration-style:solid;text-decoration-style:solid;}
 .r-1ab6au{background-color:rgba(10,11,20,1.00);}
@@ -274,10 +277,8 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 .r-1tl9yi8{height:17px;}
 .r-1udbk01{text-overflow:ellipsis;}
 .r-1ui5ee8{font-size:32px;}
-.r-1urfncx{height:210px;}
 .r-1vr29t4{font-weight:800;}
 .r-1w6e6rj{flex-wrap:wrap;}
-.r-1w88a7h{width:220px;}
 .r-1wbh5a2{flex-shrink:1;}
 .r-1wtj0ep{justify-content:space-between;}
 .r-1wyyakw{z-index:-1;}
@@ -299,8 +300,8 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 .r-4d76ec{height:200px;}
 .r-4gszlv{background-size:cover;}
 .r-4v7adb{height:5px;}
-.r-4xazgd{width:210px;}
 .r-5oul0u{margin-bottom:8px;}
+.r-5vf7qs{width:188px;}
 .r-60vfwk{min-width:1px;}
 .r-633pao>* {pointer-events:none;}
 .r-633pao{pointer-events:none!important;}
@@ -313,6 +314,7 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 .r-6vrn8a{letter-spacing:4px;}
 .r-726pan{width:31px;}
 .r-76blku{height:21px;}
+.r-77llbj{opacity:0.22;}
 .r-7cikom{font-size:inherit;}
 .r-7q8q6z{cursor:default;}
 .r-8akbws{-webkit-box-orient:vertical;}
@@ -320,14 +322,15 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 .r-8eqzbf{right:10px;}
 .r-97e31f{padding-bottom:env(safe-area-inset-bottom);}
 .r-9daxd3{animation-duration:250ms;}
-.r-9zvdko{height:220px;}
 .r-a023e6{font-size:15px;}
 .r-a036xd{background-color:rgba(0,0,0,0.58);}
 .r-adyw6z{font-size:20px;}
 .r-agouwx{transform:translateZ(0);}
 .r-ah5dr5>* {pointer-events:none;}
 .r-ah5dr5{pointer-events:auto!important;}
+.r-aqnst0{width:226px;}
 .r-aruset{font-weight:200;}
+.r-bajy9j{height:230px;}
 .r-bi4vy9{transform:translateY(100%);}
 .r-bt1l66{min-height:20px;}
 .r-buy8e9{overflow-y:hidden;}
@@ -345,6 +348,7 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 .r-ehq7j7{background-size:contain;}
 .r-eqz5dr{flex-direction:column;}
 .r-eu3ka{height:40px;}
+.r-f2a5c0{height:226px;}
 .r-fdjqy7{text-align:left;}
 .r-g3mlsw{animation-name:r-t2lo5v;}
 .r-ghxds0{transform:translateY(0%);}
@@ -431,5 +435,5 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 @keyframes r-imtty0{0%{opacity:0;}100%{opacity:1;}}
 @keyframes r-q67da2{0%{transform:translateX(-100%);}100%{transform:translateX(400%);}}
 @keyframes r-t2lo5v{0%{opacity:1;}100%{opacity:0;}}</style><link rel="icon" href="/Will-Plan/favicon.ico"/><script type="module">globalThis.__EXPO_ROUTER_HYDRATE__=true;</script></head><body><div id="root"><div class="css-g5y9jx r-13awgt0"><!--$--><div class="css-g5y9jx r-13awgt0"><div style="position:absolute;left:0;right:0;top:0;bottom:0;pointer-events:none;visibility:hidden"></div><div class="css-g5y9jx r-13awgt0"><div class="css-g5y9jx r-13awgt0 r-1p0dtai r-1d2f490 r-u8s1d r-zchlnj r-ipm5af" style="background-color:rgba(242,242,242,1.00);display:flex"><div class="css-g5y9jx r-12vffkv r-184en5c"><div class="css-g5y9jx r-12vffkv" style="height:64px"><div class="css-g5y9jx r-1p0dtai r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-12vffkv"><div class="css-g5y9jx r-qklmqi r-13awgt0" style="border-bottom-color:rgba(216,216,216,1.00);pointer-events:auto;background-color:rgba(10,11,20,1.00)"></div></div><div class="css-g5y9jx r-633pao" style="height:0px"></div><div class="css-g5y9jx r-1oszu61 r-13awgt0 r-18u37iz r-12vffkv"><div class="css-g5y9jx r-1awozwy r-18u37iz r-1h0z5md r-12vffkv" style="margin-left:0px"></div><div class="css-g5y9jx r-1777fci r-12vffkv" style="max-width:-32px;margin-right:16px;margin-left:16px"><h1 dir="auto" aria-level="1" role="heading" class="css-146c3p1 r-dnmrzs r-1udh08x r-1udbk01 r-3s2u2q r-1iln25a" style="color:rgba(232,233,245,1.00);font-family:system-ui, &quot;Segoe UI&quot;, Roboto, Helvetica, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;;font-weight:500;font-size:16px">呼吸引导</h1></div><div class="css-g5y9jx r-1awozwy r-18u37iz r-17s6mgv r-12vffkv r-1iusvr4 r-16y2uox" style="margin-right:0px"></div></div></div></div><div class="css-g5y9jx r-13awgt0"><div class="css-g5y9jx r-13awgt0" style="background-color:rgba(10,11,20,1.00)"><!--$--><div class="css-g5y9jx r-1ab6au r-13awgt0 r-nsbfu8"><div tabindex="0" class="css-g5y9jx r-1loqt21 r-1otgn73" style="margin-bottom:11px"><div class="css-g5y9jx r-1awozwy r-ytbthy" style="transform:scale(1);opacity:1"><div class="css-g5y9jx r-mpd1vr r-1867qdf r-nsbfu8"><div dir="auto" class="css-146c3p1 r-1q3jxlw r-1i10wst">4-7-8</div><div dir="auto" class="css-146c3p1 r-1f2db92 r-n6v787 r-kc8jnq">吸 4 秒 · 屏 7 秒 · 呼 8 秒</div><div dir="auto" class="css-146c3p1 r-15zsyk4 r-1enofrn r-hjklzo r-psjefw">呼气比吸气长，适合睡前或情绪上头的时候。初学者做 4 轮就够，做多了可能头晕。</div></div></div></div><div tabindex="0" class="css-g5y9jx r-1loqt21 r-1otgn73" style="margin-bottom:11px"><div class="css-g5y9jx r-1awozwy r-ytbthy" style="transform:scale(1);opacity:1"><div class="css-g5y9jx r-mpd1vr r-1867qdf r-nsbfu8"><div dir="auto" class="css-146c3p1 r-1q3jxlw r-1i10wst">方框呼吸</div><div dir="auto" class="css-146c3p1 r-1f2db92 r-n6v787 r-kc8jnq">吸 4 · 屏 4 · 呼 4 · 屏 4</div><div dir="auto" class="css-146c3p1 r-15zsyk4 r-1enofrn r-hjklzo r-psjefw">四段等长，节奏最好跟。适合工作间隙重新集中注意力。</div></div></div></div><div tabindex="0" class="css-g5y9jx r-1loqt21 r-1otgn73" style="margin-bottom:11px"><div class="css-g5y9jx r-1awozwy r-ytbthy" style="transform:scale(1);opacity:1"><div class="css-g5y9jx r-mpd1vr r-1867qdf r-nsbfu8"><div dir="auto" class="css-146c3p1 r-1q3jxlw r-1i10wst">慢呼吸</div><div dir="auto" class="css-146c3p1 r-1f2db92 r-n6v787 r-kc8jnq">吸 5 秒 · 呼 5 秒</div><div dir="auto" class="css-146c3p1 r-15zsyk4 r-1enofrn r-hjklzo r-psjefw">每分钟六次，最简单的一种。不用屏气，长时间做也不难受。</div></div></div></div><div dir="auto" class="css-146c3p1 r-175k71m r-1enofrn r-rjixqe r-156q2ks">跟着圆的胀缩呼吸就行。每一段切换时会轻震一下，闭着眼也能跟。<!-- -->
-<!-- -->感到头晕就停下来，正常呼吸一会儿。</div></div><!--/$--></div></div></div></div></div><!--/$--></div></div><script src="/Will-Plan/_expo/static/js/web/entry-89c6df116bb083116774bbecaca9c3cb.js" defer></script>
+<!-- -->感到头晕就停下来，正常呼吸一会儿。</div></div><!--/$--></div></div></div></div></div><!--/$--></div></div><script src="/Will-Plan/_expo/static/js/web/entry-47564e5b419d02fa4df2064bc6661d37.js" defer></script>
 </body></html>

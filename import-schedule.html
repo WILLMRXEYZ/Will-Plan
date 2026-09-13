@@ -1,5 +1,6 @@
 <!DOCTYPE html><html  lang="zh-CN"><head><title data-rh="true"></title><meta charSet="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>计划执行系统</title><link rel="manifest" href="./manifest.json"/><meta name="theme-color" content="#0A0B14"/><meta name="apple-mobile-web-app-capable" content="yes"/><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/><meta name="apple-mobile-web-app-title" content="计划"/><link rel="apple-touch-icon" href="./icon-192.png"/><style id="expo-reset">#root,body,html{height:100%}body{overflow:hidden}#root{display:flex}</style><style>
-  html, body, #root { height: 100%; background-color: #0A0B14; }
+  /* Safari 的 100vh 不扣除底部工具栏，内容会被切掉。dvh 跟着可见区域走 */
+  html, body, #root { height: 100%; height: 100dvh; background-color: #0A0B14; }
   body {
     margin: 0;
     overscroll-behavior: none;
@@ -51,6 +52,7 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 .r-1pcd2l5{padding:20px;}
 .r-1phboty{border-bottom-style:solid;border-left-style:solid;border-right-style:solid;border-top-style:solid;}
 .r-1px6drs{border-bottom-left-radius:7px;border-bottom-right-radius:7px;border-top-left-radius:7px;border-top-right-radius:7px;}
+.r-1q6l0fw{border-bottom-left-radius:94px;border-bottom-right-radius:94px;border-top-left-radius:94px;border-top-right-radius:94px;}
 .r-1q9bdsx{border-bottom-left-radius:12px;border-bottom-right-radius:12px;border-top-left-radius:12px;border-top-right-radius:12px;}
 .r-1qsk4np{overflow-x:clip;overflow-y:clip;}
 .r-1rvyss1{border-bottom-color:rgba(255,255,255,0.20);border-left-color:rgba(255,255,255,0.20);border-right-color:rgba(255,255,255,0.20);border-top-color:rgba(255,255,255,0.20);}
@@ -60,12 +62,12 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 .r-1uu6nss{padding:5px;}
 .r-1wbguk4{border-bottom-left-radius:54px;border-bottom-right-radius:54px;border-top-left-radius:54px;border-top-right-radius:54px;}
 .r-1xfd6ze{border-bottom-left-radius:8px;border-bottom-right-radius:8px;border-top-left-radius:8px;border-top-right-radius:8px;}
-.r-1xtugu0{border-bottom-left-radius:110px;border-bottom-right-radius:110px;border-top-left-radius:110px;border-top-right-radius:110px;}
 .r-1ylenci{border-bottom-left-radius:15px;border-bottom-right-radius:15px;border-top-left-radius:15px;border-top-right-radius:15px;}
 .r-3xxvc6{border-bottom-color:rgba(255,212,112,1.00);border-left-color:rgba(255,212,112,1.00);border-right-color:rgba(255,212,112,1.00);border-top-color:rgba(255,212,112,1.00);}
 .r-4a18lf{border-bottom-color:rgba(255,0,0,1.00);border-left-color:rgba(255,0,0,1.00);border-right-color:rgba(255,0,0,1.00);border-top-color:rgba(255,0,0,1.00);}
 .r-5gtviv{border-bottom-color:rgba(60,65,102,1.00);border-left-color:rgba(60,65,102,1.00);border-right-color:rgba(60,65,102,1.00);border-top-color:rgba(60,65,102,1.00);}
 .r-60ke3l{border-bottom-color:rgba(0,128,0,1.00);border-left-color:rgba(0,128,0,1.00);border-right-color:rgba(0,128,0,1.00);border-top-color:rgba(0,128,0,1.00);}
+.r-61frxv{border-bottom-left-radius:113px;border-bottom-right-radius:113px;border-top-left-radius:113px;border-top-right-radius:113px;}
 .r-6t2glc{border-bottom-left-radius:40px;border-bottom-right-radius:40px;border-top-left-radius:40px;border-top-right-radius:40px;}
 .r-9x6qib{border-bottom-color:rgba(204,214,221,1.00);border-left-color:rgba(204,214,221,1.00);border-right-color:rgba(204,214,221,1.00);border-top-color:rgba(204,214,221,1.00);}
 .r-cdmcib{border-bottom-left-radius:3px;border-bottom-right-radius:3px;border-top-left-radius:3px;border-top-right-radius:3px;}
@@ -86,7 +88,6 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 .r-t23y2h{border-bottom-left-radius:14px;border-bottom-right-radius:14px;border-top-left-radius:14px;border-top-right-radius:14px;}
 .r-t60dpp{padding:0px;}
 .r-u9z9pf{border-bottom-color:rgba(38,42,61,1.00);border-left-color:rgba(38,42,61,1.00);border-right-color:rgba(38,42,61,1.00);border-top-color:rgba(38,42,61,1.00);}
-.r-v9uzvu{border-bottom-left-radius:105px;border-bottom-right-radius:105px;border-top-left-radius:105px;border-top-right-radius:105px;}
 .r-wg31gx{border-bottom-color:rgba(49,53,56,1.00);border-left-color:rgba(49,53,56,1.00);border-right-color:rgba(49,53,56,1.00);border-top-color:rgba(49,53,56,1.00);}
 .r-xa2vdj{border-bottom-width:2.5px;border-left-width:2.5px;border-right-width:2.5px;border-top-width:2.5px;}
 .r-xoduu5{display:inline-flex;}
@@ -170,6 +171,7 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 .r-11yh6sk{overflow-x:hidden;}
 .r-12emxyh{background-color:rgba(255,212,112,0.33);}
 .r-12f6czt{top:17px;}
+.r-12kfsgm{width:230px;}
 .r-12txzs4{background-color:rgba(63,217,160,0.80);}
 .r-12vffkv>* {pointer-events:auto;}
 .r-12vffkv{pointer-events:none!important;}
@@ -212,6 +214,7 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 .r-19oahor{font-size:64px;}
 .r-19qrga8{margin-top:3px;}
 .r-19wmn03{width:20px;}
+.r-19yb0eb{height:188px;}
 .r-19z077z{touch-action:none;}
 .r-1a2p6p6{-webkit-text-decoration-style:solid;text-decoration-style:solid;}
 .r-1a8r3js{margin-bottom:11px;}
@@ -319,11 +322,9 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 .r-1ui5ee8{font-size:32px;}
 .r-1ujkv8a{aspect-ratio:1;}
 .r-1upy0dh{letter-spacing:2px;}
-.r-1urfncx{height:210px;}
 .r-1v5bw7l{color:rgba(63,217,160,1.00);}
 .r-1vr29t4{font-weight:800;}
 .r-1w6e6rj{flex-wrap:wrap;}
-.r-1w88a7h{width:220px;}
 .r-1waauvx{background-color:rgba(18,23,42,1.00);}
 .r-1wbh5a2{flex-shrink:1;}
 .r-1wtj0ep{justify-content:space-between;}
@@ -348,8 +349,8 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 .r-4d76ec{height:200px;}
 .r-4gszlv{background-size:cover;}
 .r-4v7adb{height:5px;}
-.r-4xazgd{width:210px;}
 .r-5oul0u{margin-bottom:8px;}
+.r-5vf7qs{width:188px;}
 .r-5w71tg{background-color:rgba(15,17,25,1.00);}
 .r-60vfwk{min-width:1px;}
 .r-633pao>* {pointer-events:none;}
@@ -364,6 +365,7 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 .r-726pan{width:31px;}
 .r-74jtu8{line-height:39px;}
 .r-76blku{height:21px;}
+.r-77llbj{opacity:0.22;}
 .r-7a6vnx{text-shadow:0px 0px 2.5px rgba(10,11,20,1.00);}
 .r-7cikom{font-size:inherit;}
 .r-7q8q6z{cursor:default;}
@@ -378,7 +380,6 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 .r-9arsxg{max-height:60px;}
 .r-9aw3ui{gap:4px;}
 .r-9daxd3{animation-duration:250ms;}
-.r-9zvdko{height:220px;}
 .r-a023e6{font-size:15px;}
 .r-a036xd{background-color:rgba(0,0,0,0.58);}
 .r-a1ub67{margin-top:11px;}
@@ -387,7 +388,9 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 .r-agouwx{transform:translateZ(0);}
 .r-ah5dr5>* {pointer-events:none;}
 .r-ah5dr5{pointer-events:auto!important;}
+.r-aqnst0{width:226px;}
 .r-aruset{font-weight:200;}
+.r-bajy9j{height:230px;}
 .r-bi4vy9{transform:translateY(100%);}
 .r-bt1l66{min-height:20px;}
 .r-buy8e9{overflow-y:hidden;}
@@ -408,6 +411,7 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 .r-eqz5dr{flex-direction:column;}
 .r-eu3ka{height:40px;}
 .r-f1odvy{margin-bottom:6px;}
+.r-f2a5c0{height:226px;}
 .r-fdjqy7{text-align:left;}
 .r-fyomxp{margin-top:34px;}
 .r-g3mlsw{animation-name:r-t2lo5v;}
@@ -511,5 +515,5 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 <!-- -->导入会先分类给你看：哪些进时间轴、哪些变成无时间待办、哪些只作后台约束。确认之后才写进去。</div></div><div dir="auto" class="css-146c3p1 r-15zsyk4 r-1enofrn r-5oul0u r-1wzrnnt">粘贴 CSV 内容</div><textarea placeholder="星期,开始,时长,类型,名称,项目,大纲
 周一,08:00,40,固定,健身,,
 …" autoCapitalize="sentences" autoComplete="on" autoCorrect="on" dir="auto" spellCheck="true" virtualkeyboardpolicy="auto" class="css-11aywtz r-6taxm2 r-mpd1vr r-1q9bdsx r-1q3jxlw r-1enofrn r-1r5jyh0 r-xyw6el r-ad9o1y" style="--placeholderTextColor:#3E4258"></textarea><div tabindex="0" class="css-g5y9jx r-1loqt21 r-1otgn73" style="margin-top:10px"><div class="css-g5y9jx r-1awozwy r-5gtviv r-cpet4d r-1mbl9jf r-1mmae3n r-284m6k" style="transform:scale(1);opacity:1"><div dir="auto" class="css-146c3p1 r-1mxyk0t r-1b43r93">清空</div></div></div><div dir="auto" class="css-146c3p1 r-15zsyk4 r-1enofrn r-5oul0u r-1wzrnnt">导入到哪一周</div><div class="css-g5y9jx r-18u37iz r-1w6e6rj"><div tabindex="0" class="css-g5y9jx r-1loqt21 r-1otgn73" style="margin-right:8px"><div class="css-g5y9jx r-1awozwy r-ytbthy" style="transform:scale(1);opacity:1"><div class="css-g5y9jx r-1awozwy r-cpet4d r-1mbl9jf r-1s5swlz r-gu64tb r-1k7z1ys r-3xxvc6"><div dir="auto" class="css-146c3p1 r-1enofrn" style="color:rgba(10,11,20,1.00)">本周<!-- --> · <!-- -->09-07<!-- --> 起</div></div></div></div><div tabindex="0" class="css-g5y9jx r-1loqt21 r-1otgn73" style="margin-right:8px"><div class="css-g5y9jx r-1awozwy r-ytbthy" style="transform:scale(1);opacity:1"><div class="css-g5y9jx r-1awozwy r-5gtviv r-cpet4d r-1mbl9jf r-1s5swlz r-gu64tb"><div dir="auto" class="css-146c3p1 r-1mxyk0t r-1enofrn">下周<!-- --> · <!-- -->09-14<!-- --> 起</div></div></div></div></div><div dir="auto" class="css-146c3p1 r-15zsyk4 r-1enofrn r-5oul0u r-1wzrnnt">方式</div><div class="css-g5y9jx r-18u37iz r-1w6e6rj"><div tabindex="0" class="css-g5y9jx r-1loqt21 r-1otgn73" style="flex:1;margin-right:8px"><div class="css-g5y9jx r-1awozwy r-ytbthy" style="transform:scale(1);opacity:1"><div class="css-g5y9jx r-1awozwy r-cpet4d r-1mbl9jf r-1s5swlz r-gu64tb r-1k7z1ys r-3xxvc6"><div dir="auto" class="css-146c3p1 r-1enofrn" style="color:rgba(10,11,20,1.00)">替换整张标准周</div></div></div></div><div tabindex="0" class="css-g5y9jx r-1loqt21 r-1otgn73" style="flex:1;margin-right:8px"><div class="css-g5y9jx r-1awozwy r-ytbthy" style="transform:scale(1);opacity:1"><div class="css-g5y9jx r-1awozwy r-5gtviv r-cpet4d r-1mbl9jf r-1s5swlz r-gu64tb"><div dir="auto" class="css-146c3p1 r-1mxyk0t r-1enofrn">合并，跳过重复</div></div></div></div></div><div aria-disabled="true" tabindex="-1" class="css-g5y9jx r-12vffkv" style="margin-top:18px"><div class="css-g5y9jx r-1awozwy r-1k7z1ys r-cpet4d r-ywh0we r-u9wvl5" style="opacity:1;transform:scale(1)"><div dir="auto" class="css-146c3p1 r-1rinrc7 r-a023e6">确认导入</div></div></div><div dir="auto" class="css-146c3p1 r-15zsyk4 r-1enofrn r-rjixqe r-1wzrnnt">重复导入同一份内容不会创建第二份，也不会重置已有的完成状态、日志和实际计时。<!-- -->
-<!-- -->导入可以撤回：左下角撤回按钮，或两指同时点屏幕。</div></div></div></div><!--/$--></div></div></div></div></div><!--/$--></div></div><script src="/Will-Plan/_expo/static/js/web/entry-89c6df116bb083116774bbecaca9c3cb.js" defer></script>
+<!-- -->导入可以撤回：左下角撤回按钮，或两指同时点屏幕。</div></div></div></div><!--/$--></div></div></div></div></div><!--/$--></div></div><script src="/Will-Plan/_expo/static/js/web/entry-47564e5b419d02fa4df2064bc6661d37.js" defer></script>
 </body></html>
