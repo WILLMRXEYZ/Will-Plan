@@ -1181,7 +1181,8 @@ window.ArtClock = ArtClock;
     camera: [0, 0],
     weather: &#x27;clear&#x27;,
     reduceMotion: false,
-    hasRod: false,      // 从灯塔的箱子里取竿
+    hasRod: false,      // 兼容旧存档，实际看装备栏
+    tankCount: 0,       // 鱼缸里有几条，只用来画
     atSpot: false,      // 站在钓点上
   };
 
@@ -1212,8 +1213,10 @@ window.ArtClock = ArtClock;
     FA.preload();
   }
 
-  /** 钓竿架：挂在灯塔右墙 */
-  var RACK_POS = [196, 250];
+  /** 灯塔里几个固定位置 */
+  var RACK_POS = [196, 250];    // 钓竿架，右墙
+  var TANK_POS = [108, 205];    // 鱼缸，左侧桌上
+  var MOUNT_POS = [146, 178];   // 标本架，窗户两侧
 
   /** 水面大致高度。钩落到这条线以下才算入水 */
   function waterLine() {
@@ -1581,15 +1584,7 @@ window.ArtClock = ArtClock;
    * 只有「从门外朝门走进去」才传送。
    * 站在门上乱动不会触发，必须先离开门区、再走回来。
    */
-  /** 灯塔里的箱子：走过去自动取竿 */
-  function checkChest() {
-    if (state.scene !== &#x27;home&#x27; || state.hasRod) return;
-    var c = M.scenes.home.chest;
-    if (Math.hypot(state.feet[0] - c[0], state.feet[1] - c[1]) &lt;= 16) {
-      state.hasRod = true;
-      post(&#x27;pickedRod&#x27;, {});
-    }
-  }
+
 
   /**
    * 当前站的位置能做什么。
@@ -1608,14 +1603,19 @@ window.ArtClock = ArtClock;
     }
 
     if (state.scene === &#x27;home&#x27;) {
-      // 钓竿架挂在右墙上，箱子在地上。谁近听谁的
-      var rack = RACK_POS;
-      var c = M.scenes.home.chest;
-      var dr = Math.hypot(state.feet[0] - rack[0], state.feet[1] - rack[1]);
-      var dc = Math.hypot(state.feet[0] - c[0], state.feet[1] - c[1]);
-      if (dr &lt;= 26 &amp;&amp; dr &lt;= dc) return &#x27;rack&#x27;;
-      if (dc &lt;= 26) return &#x27;chest&#x27;;
-      return null;
+      // 灯塔里四个交互点，谁近听谁的
+      var pts = [
+        { kind: &#x27;rack&#x27;, p: RACK_POS },
+        { kind: &#x27;chest&#x27;, p: M.scenes.home.chest },
+        { kind: &#x27;tank&#x27;, p: TANK_POS },
+        { kind: &#x27;mount&#x27;, p: MOUNT_POS },
+      ];
+      var best = null, bestD = 27;
+      for (var i = 0; i &lt; pts.length; i++) {
+        var d = Math.hypot(state.feet[0] - pts[i].p[0], state.feet[1] - pts[i].p[1]);
+        if (d &lt; bestD) { bestD = d; best = pts[i].kind; }
+      }
+      return best;
     }
 
     if (state.scene === &#x27;coast&#x27;) {
@@ -1738,7 +1738,6 @@ window.ArtClock = ArtClock;
       else state.dir = my &gt; 0 ? &#x27;down&#x27; : &#x27;up&#x27;;
       tryMove(mx * SPEED * dt, my * SPEED * dt);
       checkDoors(mx, my);
-      checkChest();
     }
 
     updateCamera(false);
@@ -1768,6 +1767,7 @@ window.ArtClock = ArtClock;
     drawFishingActor(ctx);
 
     drawRodRack(ctx);
+    drawTankAndMounts(ctx, state.tankCount);
     drawSpotMarker(ctx, o.t);
     drawFishing(ctx, o.t);
     drawHud(ctx);
@@ -1884,6 +1884,40 @@ window.ArtClock = ArtClock;
   }
 
   /** 钓点标记：海岸上画一圈缓慢呼吸的金色光环 */
+  /** 鱼缸与标本架 */
+  function drawTankAndMounts(g, tankCount) {
+    if (state.scene !== &#x27;home&#x27;) return;
+    g.save();
+
+    // 鱼缸：玻璃箱 + 水
+    var tx = TANK_POS[0] - state.camera[0];
+    var ty = TANK_POS[1] - state.camera[1];
+    g.fillStyle = &#x27;#1C3A4A&#x27;;
+    g.fillRect(tx - 11, ty - 14, 22, 15);
+    g.fillStyle = &#x27;#2E6C86&#x27;;
+    g.fillRect(tx - 10, ty - 10, 20, 10);
+    g.strokeStyle = &#x27;#9DC7D8&#x27;;
+    g.lineWidth = 1;
+    g.strokeRect(tx - 10.5, ty - 13.5, 21, 14);
+    // 缸里的鱼，有几条画几条
+    for (var i = 0; i &lt; Math.min(5, tankCount || 0); i++) {
+      g.fillStyle = &#x27;#FFD470&#x27;;
+      g.fillRect(tx - 7 + i * 4, ty - 8 + (i % 2) * 4, 3, 2);
+    }
+
+    // 标本架：窗户两侧各一块木板
+    var mx = MOUNT_POS[0] - state.camera[0];
+    var my = MOUNT_POS[1] - state.camera[1];
+    g.fillStyle = &#x27;#5A4028&#x27;;
+    g.fillRect(mx - 30, my - 8, 14, 11);
+    g.fillRect(mx + 16, my - 8, 14, 11);
+    g.strokeStyle = &#x27;#8A6A3E&#x27;;
+    g.strokeRect(mx - 29.5, my - 7.5, 13, 10);
+    g.strokeRect(mx + 16.5, my - 7.5, 13, 10);
+
+    g.restore();
+  }
+
   /** 灯塔右墙上的钓竿架 */
   function drawRodRack(g) {
     if (state.scene !== &#x27;home&#x27;) return;
@@ -2022,6 +2056,7 @@ window.ArtClock = ArtClock;
         updateCamera(true);
       }
       else if (m.type === &#x27;setReduceMotion&#x27;) { state.reduceMotion = !!m.value; }
+      else if (m.type === &#x27;tankCount&#x27;) { state.tankCount = m.value | 0; }
       else if (m.type === &#x27;startFishing&#x27;) { setFishing(m.encounter, m.eff); }
       else if (m.type === &#x27;updateEncounter&#x27;) { if (fishing.enc) { fishing.enc = m.encounter; fishing.phase = m.encounter.phase === &#x27;landed&#x27; || m.encounter.phase === &#x27;escaped&#x27; ? &#x27;done&#x27; : m.encounter.phase; } }
       else if (m.type === &#x27;endFishing&#x27;) {
@@ -2061,5 +2096,5 @@ window.ArtClock = ArtClock;
 })();
 &lt;/script&gt;
 &lt;/body&gt;
-&lt;/html&gt;" title="Will Fish" style="flex:1;width:100%;height:100%;border:none;background:#0A0B14" sandbox="allow-scripts allow-same-origin"></iframe><div class="css-g5y9jx r-1awozwy r-1p0dtai r-1777fci r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-633pao"><div dir="auto" class="css-146c3p1 r-15zsyk4 r-n6v787">正在唤醒灯塔…</div></div></div></div><!--/$--></div></div></div></div></div><!--/$--></div></div><script src="/Will-Plan/_expo/static/js/web/entry-62fee5a2d5bcb8d88838fc50865376c0.js" defer></script>
+&lt;/html&gt;" title="Will Fish" style="flex:1;width:100%;height:100%;border:none;background:#0A0B14" sandbox="allow-scripts allow-same-origin"></iframe><div class="css-g5y9jx r-1awozwy r-1p0dtai r-1777fci r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-633pao"><div dir="auto" class="css-146c3p1 r-15zsyk4 r-n6v787">正在唤醒灯塔…</div></div></div></div><!--/$--></div></div></div></div></div><!--/$--></div></div><script src="/Will-Plan/_expo/static/js/web/entry-a6d1b679abc64eb64ad1d78621a2b092.js" defer></script>
 </body></html>
