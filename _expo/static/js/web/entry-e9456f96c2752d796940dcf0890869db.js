@@ -1066,6 +1066,8 @@ __d(function(g,r,i,a,m,e,d){"use strict";Object.defineProperty(e,'__esModule',{v
     retrieve: 0,       // 回收进度 0→1
     retrieveDone: false,
     pendingResult: null,   // 回收放完才把结果交给宿主
+    reveal: null,          // 回收结束后展示的真鱼
+    revealT: 0,
   };
 
   var FA = window.__WF_FISHANIM;
@@ -1096,6 +1098,7 @@ __d(function(g,r,i,a,m,e,d){"use strict";Object.defineProperty(e,'__esModule',{v
       fishing.phase = 'idle'; fishing.enc = null;
       fishing.clock = 0; fishing.saveAcc = 0;
       fishing.retrieve = 0; fishing.retrieveDone = false; fishing.pendingResult = null;
+      fishing.reveal = null; fishing.revealT = 0;
       if (fishing.tackle) fishing.tackle.hide();
       return;
     }
@@ -1180,7 +1183,7 @@ __d(function(g,r,i,a,m,e,d){"use strict";Object.defineProperty(e,'__esModule',{v
 
 
   /**
-   * 推进精灵与鱼线。
+   * 推进精灵。鱼线和浮标由精灵表自己画，这里不碰。
    * 玩法阶段决定放哪一段，动画只跟随，不反过来改玩法。
    * 唯一例外是回收：结果卡要等 catch／escape 放完才弹。
    */
@@ -1230,6 +1233,8 @@ __d(function(g,r,i,a,m,e,d){"use strict";Object.defineProperty(e,'__esModule',{v
       }
       T.retrieveTo(tip, fishing.retrieve);
       T.tick(dtMs, 'idle');
+
+      if (A.done && fishing.reveal) fishing.revealT = Math.min(1, fishing.revealT + dtMs / 260);
 
       // 放完最后一帧，再把结果交给宿主。不能提前弹窗
       if (A.done && fishing.pendingResult) {
@@ -1488,11 +1493,8 @@ __d(function(g,r,i,a,m,e,d){"use strict";Object.defineProperty(e,'__esModule',{v
     }
 
     if (state.scene === 'coast') {
-      // 只有码头外侧才能下竿。整片海岸都能钓会让钓点失去意义，
-      // 而且判定范围一大，走路时按钮老是闪。
-      var f = M.scenes.coast.fishingAnchor;
-      if (Math.hypot(state.feet[0] - f[0], state.feet[1] - f[1]) > 22) return null;
-      return 'fish';
+      // 站在桥上就能钓，四面都行。桥就是导航里的第二块可走区域。
+      return onDock(state.feet[0], state.feet[1]) ? 'fish' : null;
     }
     return null;
   }
@@ -1507,6 +1509,12 @@ __d(function(g,r,i,a,m,e,d){"use strict";Object.defineProperty(e,'__esModule',{v
   }
 
   /** 海岸的钓点：进入范围就通知宿主弹出钓鱼窗口 */
+  /** 桥面：海岸导航里的第二块可走区域 */
+  function onDock(x, y) {
+    var polys = (M.navigation.coast && M.navigation.coast.walkablePolygons) || [];
+    return polys.length > 1 && pointInPoly(x, y, polys[1]);
+  }
+
   /** 海：可走区域之外、且在水面高度带里。屋子内部不算 */
   function isSea(x, y) {
     var polys = (M.navigation.coast && M.navigation.coast.walkablePolygons) || [];
@@ -1747,9 +1755,36 @@ __d(function(g,r,i,a,m,e,d){"use strict";Object.defineProperty(e,'__esModule',{v
     var feetScreen = [state.feet[0] - state.camera[0], state.feet[1] - state.camera[1]];
     var tip = A.rodTip(state.feet, flip);
 
-    // 鱼线那组先画，角色压在上面，竿看起来才是握在手里的
-    if (T) T.draw(g, state.camera, tip, waterLine());
+    // 精灵表里本来就画了竿、鱼线和浮标，这里只画角色。
+    // 以前另外画了一层，结果浮标落在角色脚下，和精灵里那条线对不上。
     A.draw(g, feetScreen, flip);
+    drawReveal(g, feetScreen, flip);
+    void T; void tip;
+  }
+
+  /**
+   * 回收结束后，在角色身旁展示真正钓到的那条鱼。
+   *
+   * catch 精灵里画的是素材自带的示例鱼（沙丁鱼），
+   * 那条是烤在图里的，换不掉 —— 所以真鱼另外画在旁边，按体长缩放。
+   */
+  function drawReveal(g, feetScreen, flip) {
+    var r = fishing.reveal;
+    if (!r || !r.img || fishing.revealT <= 0) return;
+    var info = r.info || { mouthX: 2, mouthY: 20, w: 64, h: 40, scale: 1 };
+    var k = info.scale || 1;
+
+    // 素材里标注的回收终点：局部 [54,43]，锚点 [28,71]
+    var ax = feetScreen[0] + (flip ? -26 : 26);
+    var ay = feetScreen[1] - 28;
+
+    g.save();
+    g.globalAlpha = fishing.revealT;
+    g.imageSmoothingEnabled = false;
+    g.translate(ax, ay - (1 - fishing.revealT) * 6);
+    if (flip) g.scale(-k, k); else g.scale(k, k);
+    g.drawImage(r.img, -info.mouthX, -info.mouthY, info.w, info.h);
+    g.restore();
   }
 
   /** 钓点标记：海岸上画一圈缓慢呼吸的金色光环 */
@@ -1815,13 +1850,10 @@ __d(function(g,r,i,a,m,e,d){"use strict";Object.defineProperty(e,'__esModule',{v
     if (fishing.tackle) {
       // 从钩现在的位置接上，不跳帧
       fishing.tackle.anchorHere();
-      fishing.tackle.setFlip(state.dir === 'left');
-      if (animId === 'catch') {
-        var fs = fishSpriteFor(fishing.enc);
-        fishing.tackle.attachFish(fs && fs.img, fs && fs.info);
-      } else {
-        fishing.tackle.attachFish(null, null);   // 鱼跑了，只剩空钩
-      }
+      // 精灵里那条鱼是素材自带的示例，换不掉。
+      // 回收放完之后我们在旁边把真正的鱼种亮出来，尺寸按体长。
+      fishing.reveal = animId === 'catch' ? fishSpriteFor(fishing.enc) : null;
+      fishing.revealT = 0;
     }
   }
 
