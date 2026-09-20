@@ -1198,10 +1198,6 @@ window.ArtClock = ArtClock;
     clock: 0,
     saveAcc: 0,
     hook: null,        // 这一竿鱼钩落在哪片海
-    dragLast: null,    // 上一次手指位置
-    dragDir: 0,        // 当前来回的方向，+1 / -1
-    dragAccum: 0,      // 本次方向上已经拖了多少
-    strokes: 0,
     anim: null,        // 精灵状态机
     tackle: null,      // 鱼线／浮漂／鱼钩
     retrieve: 0,       // 回收进度 0→1
@@ -1215,6 +1211,9 @@ window.ArtClock = ArtClock;
     fishing.tackle = FA.createTackle();
     FA.preload();
   }
+
+  /** 钓竿架：挂在灯塔右墙 */
+  var RACK_POS = [196, 250];
 
   /** 水面大致高度。钩落到这条线以下才算入水 */
   function waterLine() {
@@ -1242,10 +1241,6 @@ window.ArtClock = ArtClock;
       fishing.tackle.cast(tip0, fishing.hook, state.dir === &#x27;left&#x27;);
     }
     fishing.enc = enc;
-    fishing.strokes = enc.strokes || 0;
-    fishing.dragLast = null;
-    fishing.dragDir = 0;
-    fishing.dragAccum = 0;
     fishing.phase = enc.phase === &#x27;landed&#x27; || enc.phase === &#x27;escaped&#x27; ? &#x27;done&#x27; : enc.phase;
   }
 
@@ -1266,12 +1261,14 @@ window.ArtClock = ArtClock;
     }
 
     if (fishing.phase === &#x27;biting&#x27;) {
+      // 咬钩后不再需要任何操作。闪一下提示，然后自动进入收线。
+      // 之前要在三秒内点屏幕，实测在手机上根本按不上。
       e.reactLeftMs -= dtMs;
       fishing.flash = Math.max(0, fishing.flash - dtMs / 600);
       if (e.reactLeftMs &lt;= 0) {
-        fishing.phase = &#x27;done&#x27;;
-        e.phase = &#x27;escaped&#x27;;
-        post(&#x27;fishDone&#x27;, { result: &#x27;escaped&#x27;, reason: &#x27;missed&#x27; });
+        fishing.phase = &#x27;fighting&#x27;;
+        e.phase = &#x27;fighting&#x27;;
+        e.dragElapsedMs = 0;
       }
       return;
     }
@@ -1282,33 +1279,23 @@ window.ArtClock = ArtClock;
     }
   }
 
-  /** 一次有效来回要拖过多少像素 */
-  var STROKE_PX = 42;
-
   /**
-   * 拖动控鱼。
-   * 按提示的轴来回拖，每换一次方向并拖够距离算一次。
-   * 不用点击事件 —— 网页上连续点击经常丢事件，拖动是连续手势，稳。
+   * 收线。
+   *
+   * 不需要任何操作 —— 咬钩之后自动收，进度走满就上鱼。
+   * 原来那套「三秒内点屏幕」和「按方向拖动」在手机上都按不上，
+   * 两次实测都卡在这一步，索性去掉互动要求。
    */
   function stepDrag(dtMs) {
     var e = fishing.enc;
     if (!e) return;
 
     e.dragElapsedMs = (e.dragElapsedMs || 0) + dtMs;
-    e.strokes = fishing.strokes;
+    e.progress = Math.min(1, e.dragElapsedMs / e.dragTotalMs);
 
-    var need = Math.max(4, Math.round(e.strokesNeeded * (1 - (fishing.eff.lossReduction || 0) * 0.5)));
-    e.progress = Math.min(1, e.strokes / need);
-
-    if (e.strokes &gt;= need) {
-      e.progress = 1;
+    if (e.progress &gt;= 1) {
       e.phase = &#x27;landed&#x27;;
       beginRetrieve(&#x27;catch&#x27;, { result: &#x27;landed&#x27;, encounter: e });
-      return;
-    }
-    if (e.dragElapsedMs &gt;= e.dragTotalMs) {
-      e.phase = &#x27;escaped&#x27;;
-      beginRetrieve(&#x27;escape&#x27;, { result: &#x27;escaped&#x27;, reason: &#x27;timeout&#x27;, encounter: e });
       return;
     }
 
@@ -1319,36 +1306,7 @@ window.ArtClock = ArtClock;
     }
   }
 
-  /** 手指移动时按轴累计位移，够一段就记一次来回 */
-  function feedDrag(dx, dy) {
-    var e = fishing.enc;
-    if (!e || fishing.phase !== &#x27;fighting&#x27;) return;
 
-    var v;
-    if (e.dragAxis === &#x27;horizontal&#x27;) v = dx;
-    else if (e.dragAxis === &#x27;vertical&#x27;) v = dy;
-    else v = Math.abs(dx) &gt;= Math.abs(dy) ? dx : dy;   // 混合：哪个方向大算哪个
-
-    if (Math.abs(v) &lt; 0.5) return;
-    var dir = v &gt; 0 ? 1 : -1;
-
-    if (fishing.dragDir === 0) {
-      fishing.dragDir = dir;
-      fishing.dragAccum = Math.abs(v);
-      return;
-    }
-    if (dir === fishing.dragDir) {
-      fishing.dragAccum += Math.abs(v);
-      return;
-    }
-    // 换方向了：刚才那一程够长就算一次
-    if (fishing.dragAccum &gt;= STROKE_PX) {
-      fishing.strokes += 1;
-      if (navigator.vibrate) { try { navigator.vibrate(8); } catch (x) {} }
-    }
-    fishing.dragDir = dir;
-    fishing.dragAccum = Math.abs(v);
-  }
 
   /**
    * 推进精灵与鱼线。
@@ -1474,17 +1432,7 @@ window.ArtClock = ArtClock;
     var t = e.changedTouches ? e.changedTouches[0] : e;
     if (hitHud(t.clientX, t.clientY)) { post(&#x27;openPanel&#x27;, {}); return; }  // UI 优先，不透传成走路
 
-    if (fishing.phase === &#x27;biting&#x27; || fishing.phase === &#x27;fighting&#x27;) {
-      touchId = t.identifier === undefined ? &#x27;mouse&#x27; : t.identifier;
-      fishing.dragLast = [t.clientX, t.clientY];
-      fishing.dragDir = 0;
-      fishing.dragAccum = 0;
-      if (fishing.phase === &#x27;biting&#x27;) {
-        fishing.strokes = 0;
-        post(&#x27;hooked&#x27;, {});
-      }
-      return;
-    }
+    if (fishing.phase !== &#x27;idle&#x27;) return;   // 钓鱼期间屏幕不响应，全自动
     touchId = t.identifier === undefined ? &#x27;mouse&#x27; : t.identifier;
     origin = [t.clientX, t.clientY];
     downPos = [t.clientX, t.clientY];
@@ -1494,14 +1442,6 @@ window.ArtClock = ArtClock;
   }
   function onMove(e) {
     if (touchId === null) return;
-    if (fishing.phase === &#x27;fighting&#x27; || fishing.phase === &#x27;biting&#x27;) {
-      var ft = pick(e); if (!ft) return;
-      if (fishing.dragLast) {
-        feedDrag(ft.clientX - fishing.dragLast[0], ft.clientY - fishing.dragLast[1]);
-      }
-      fishing.dragLast = [ft.clientX, ft.clientY];
-      return;
-    }
     if (fishing.phase !== &#x27;idle&#x27;) return;     // 其余钓鱼阶段不移动角色
     var t = pick(e); if (!t) return;
     var dx = t.clientX - origin[0], dy = t.clientY - origin[1];
@@ -1514,13 +1454,6 @@ window.ArtClock = ArtClock;
   }
   function onUp(e) {
     if (touchId === null) return;
-    if (fishing.phase === &#x27;fighting&#x27; || fishing.phase === &#x27;biting&#x27;) {
-      // 松手不惩罚，再按下继续拖就行
-      fishing.dragLast = null;
-      fishing.dragDir = 0;
-      touchId = null;
-      return;
-    }
     var t = pick(e);
     if (!dragging &amp;&amp; t) {
       var moved = Math.hypot(t.clientX - downPos[0], t.clientY - downPos[1]);
@@ -1534,8 +1467,6 @@ window.ArtClock = ArtClock;
   }
   function onCancel() {
     touchId = null; origin = null; vec = [0, 0]; dragging = false;
-    fishing.dragLast = null;                  // 切后台清掉手势状态
-    fishing.dragDir = 0;
   }
   function pick(e) {
     if (!e.changedTouches) return e;
@@ -1677,17 +1608,21 @@ window.ArtClock = ArtClock;
     }
 
     if (state.scene === &#x27;home&#x27;) {
+      // 钓竿架挂在右墙上，箱子在地上。谁近听谁的
+      var rack = RACK_POS;
       var c = M.scenes.home.chest;
-      if (Math.hypot(state.feet[0] - c[0], state.feet[1] - c[1]) &lt;= 26) return &#x27;chest&#x27;;
+      var dr = Math.hypot(state.feet[0] - rack[0], state.feet[1] - rack[1]);
+      var dc = Math.hypot(state.feet[0] - c[0], state.feet[1] - c[1]);
+      if (dr &lt;= 26 &amp;&amp; dr &lt;= dc) return &#x27;rack&#x27;;
+      if (dc &lt;= 26) return &#x27;chest&#x27;;
       return null;
     }
 
     if (state.scene === &#x27;coast&#x27;) {
-      if (!nearShore(state.feet[0], state.feet[1])) return null;
-      var list = doorsHere();
-      for (var i = 0; i &lt; list.length; i++) {
-        if (Math.hypot(state.feet[0] - list[i].pos[0], state.feet[1] - list[i].pos[1]) &lt;= DOOR_R + 10) return null;
-      }
+      // 只有码头外侧才能下竿。整片海岸都能钓会让钓点失去意义，
+      // 而且判定范围一大，走路时按钮老是闪。
+      var f = M.scenes.coast.fishingAnchor;
+      if (Math.hypot(state.feet[0] - f[0], state.feet[1] - f[1]) &gt; 22) return null;
       return &#x27;fish&#x27;;
     }
     return null;
@@ -1822,15 +1757,17 @@ window.ArtClock = ArtClock;
       weather: state.weather,
       hud: false,
       camera: state.camera,
-      // 钓鱼时不让渲染器画走路的角色，改用钓鱼精灵
+      // 钓鱼时不让渲染器画角色，改用钓鱼精灵。
+      // 必须传 false —— 渲染器对 null 会回落到默认角色，画出第二个人。
       actor: fishing.phase === &#x27;idle&#x27;
         ? { feet: state.feet, direction: state.dir, walking: state.walking }
-        : null,
+        : false,
     });
     ctx.restore();
 
     drawFishingActor(ctx);
 
+    drawRodRack(ctx);
     drawSpotMarker(ctx, o.t);
     drawFishing(ctx, o.t);
     drawHud(ctx);
@@ -1909,52 +1846,23 @@ window.ArtClock = ArtClock;
     if (fishing.phase !== &#x27;fighting&#x27;) { g.restore(); return; }
 
     var e2 = fishing.enc;
-    var need = Math.max(4, Math.round(e2.strokesNeeded * (1 - (fishing.eff.lossReduction || 0) * 0.5)));
-    var prog = Math.min(1, fishing.strokes / need);
-    var left = Math.max(0, (e2.dragTotalMs - e2.dragElapsedMs) / 1000);
+    var prog = Math.min(1, e2.progress || 0);
+    var cx = VW / 2, cy = VH / 2 + 40;
 
-    // 方向提示：画在屏幕中间，跟着节奏晃
-    var cx = VW / 2, cy = VH / 2 + 30;
-    var beat = Math.sin(t * 9);
-    g.globalAlpha = 0.9;
-    g.strokeStyle = &#x27;#FFD470&#x27;;
-    g.lineWidth = 2;
-    var horiz = e2.dragAxis === &#x27;horizontal&#x27; || (e2.dragAxis === &#x27;mixed&#x27; &amp;&amp; Math.sin(t * 2) &gt; 0);
-    var arm = 26;
-    g.beginPath();
-    if (horiz) {
-      g.moveTo(cx - arm + beat * 4, cy); g.lineTo(cx + arm + beat * 4, cy);
-      g.moveTo(cx - arm + beat * 4, cy); g.lineTo(cx - arm + 8 + beat * 4, cy - 6);
-      g.moveTo(cx - arm + beat * 4, cy); g.lineTo(cx - arm + 8 + beat * 4, cy + 6);
-      g.moveTo(cx + arm + beat * 4, cy); g.lineTo(cx + arm - 8 + beat * 4, cy - 6);
-      g.moveTo(cx + arm + beat * 4, cy); g.lineTo(cx + arm - 8 + beat * 4, cy + 6);
-    } else {
-      g.moveTo(cx, cy - arm + beat * 4); g.lineTo(cx, cy + arm + beat * 4);
-      g.moveTo(cx, cy - arm + beat * 4); g.lineTo(cx - 6, cy - arm + 8 + beat * 4);
-      g.moveTo(cx, cy - arm + beat * 4); g.lineTo(cx + 6, cy - arm + 8 + beat * 4);
-      g.moveTo(cx, cy + arm + beat * 4); g.lineTo(cx - 6, cy + arm - 8 + beat * 4);
-      g.moveTo(cx, cy + arm + beat * 4); g.lineTo(cx + 6, cy + arm - 8 + beat * 4);
-    }
-    g.stroke();
-
-    // 进度条
-    var bw = 150, bx = (VW - bw) / 2, by = cy + 44;
+    var bw = 150, bx = (VW - bw) / 2;
     g.globalAlpha = 1;
-    g.fillStyle = &#x27;rgba(10,11,20,0.8)&#x27;;
-    g.fillRect(bx - 2, by - 2, bw + 4, 10);
-    g.fillStyle = prog &gt; 0.66 ? &#x27;#3FD9A0&#x27; : prog &gt; 0.33 ? &#x27;#FFD470&#x27; : &#x27;#FF7A45&#x27;;
-    g.fillRect(bx, by, bw * prog, 6);
+    g.fillStyle = &#x27;rgba(10,11,20,0.82)&#x27;;
+    g.fillRect(bx - 3, cy - 3, bw + 6, 12);
+    g.fillStyle = &#x27;#3FD9A0&#x27;;
+    g.fillRect(bx, cy, bw * prog, 6);
     g.strokeStyle = &#x27;#3A4170&#x27;;
     g.lineWidth = 1;
-    g.strokeRect(bx - 1.5, by - 1.5, bw + 3, 9);
+    g.strokeRect(bx - 2.5, cy - 2.5, bw + 5, 11);
 
     g.fillStyle = &#x27;#E8E9F5&#x27;;
     g.font = &#x27;11px -apple-system,sans-serif&#x27;;
     g.textAlign = &#x27;center&#x27;;
-    g.fillText(fishing.strokes + &#x27; / &#x27; + need, cx, by + 22);
-    g.fillStyle = left &lt; 1.2 ? &#x27;#FF7A45&#x27; : &#x27;#8A8FA8&#x27;;
-    g.font = &#x27;10px -apple-system,sans-serif&#x27;;
-    g.fillText(left.toFixed(1) + &#x27; 秒&#x27;, cx, by + 36);
+    g.fillText(&#x27;收线中&#x27;, cx, cy - 12);
     g.restore();
   }
 
@@ -1976,6 +1884,31 @@ window.ArtClock = ArtClock;
   }
 
   /** 钓点标记：海岸上画一圈缓慢呼吸的金色光环 */
+  /** 灯塔右墙上的钓竿架 */
+  function drawRodRack(g) {
+    if (state.scene !== &#x27;home&#x27;) return;
+    var x = RACK_POS[0] - state.camera[0];
+    var y = RACK_POS[1] - state.camera[1];
+    g.save();
+    // 两根横木
+    g.fillStyle = &#x27;#6B4A2E&#x27;;
+    g.fillRect(x - 12, y - 22, 24, 3);
+    g.fillRect(x - 12, y - 10, 24, 3);
+    // 挂着的竿
+    g.strokeStyle = state.hasRod ? &#x27;#4A5170&#x27; : &#x27;#C9A227&#x27;;
+    g.lineWidth = 1.5;
+    g.beginPath();
+    g.moveTo(x - 7, y - 26);
+    g.lineTo(x - 2, y - 4);
+    g.stroke();
+    g.strokeStyle = &#x27;#8A6A3E&#x27;;
+    g.beginPath();
+    g.moveTo(x + 3, y - 26);
+    g.lineTo(x + 8, y - 4);
+    g.stroke();
+    g.restore();
+  }
+
   /** 地板上不再画任何圆圈或文字。能做什么由底部那个按钮表示 */
   function drawSpotMarker() {}
 
@@ -2128,5 +2061,5 @@ window.ArtClock = ArtClock;
 })();
 &lt;/script&gt;
 &lt;/body&gt;
-&lt;/html&gt;" title="Will Fish" style="flex:1;width:100%;height:100%;border:none;background:#0A0B14" sandbox="allow-scripts allow-same-origin"></iframe><div class="css-g5y9jx r-1awozwy r-1p0dtai r-1777fci r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-633pao"><div dir="auto" class="css-146c3p1 r-15zsyk4 r-n6v787">正在唤醒灯塔…</div></div></div></div><!--/$--></div></div></div></div></div><!--/$--></div></div><script src="/Will-Plan/_expo/static/js/web/entry-d52fe5734088f32dbdf0b38c9c39735c.js" defer></script>
+&lt;/html&gt;" title="Will Fish" style="flex:1;width:100%;height:100%;border:none;background:#0A0B14" sandbox="allow-scripts allow-same-origin"></iframe><div class="css-g5y9jx r-1awozwy r-1p0dtai r-1777fci r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-633pao"><div dir="auto" class="css-146c3p1 r-15zsyk4 r-n6v787">正在唤醒灯塔…</div></div></div></div><!--/$--></div></div></div></div></div><!--/$--></div></div><script src="/Will-Plan/_expo/static/js/web/entry-62fee5a2d5bcb8d88838fc50865376c0.js" defer></script>
 </body></html>
