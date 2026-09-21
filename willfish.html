@@ -1336,6 +1336,7 @@ window.ArtClock = ArtClock;
   var MOUNT_POS_L = [95, 186];  // 左标本框前
   var MOUNT_POS_R = [196, 186]; // 右标本框前
   var RACK_POS = [212, 240];    // 钓竿架，右墙
+  var SHOP_CHEST = [70, 388];   // 机器人商店左下角的箱子（阻挡框 [39,385,40,21]），站右边或上面都够得到
   var BOOK_BOX = [186, 310, 14, 10];   // 图鉴，摆在右下角那张桌子上
   var BOOK_POS = [155, 330];           // 站在桌子左边翻
 
@@ -1349,11 +1350,6 @@ window.ArtClock = ArtClock;
     rod_wood: &#x27;wood&#x27;, rod_fiberglass: &#x27;fiberglass&#x27;, rod_graphite: &#x27;carbon&#x27;,
     rod_titanium: &#x27;titanium&#x27;, rod_neptune: &#x27;neptune&#x27;,
   };
-  /** 水面在哪个方向就面朝哪边。水平分量大用左右，否则上面是背面、下面是正面 */
-  function facingToward(dx, dy) {
-    if (Math.abs(dx) &gt;= Math.abs(dy)) return dx &gt;= 0 ? &#x27;right&#x27; : &#x27;left&#x27;;
-    return dy &gt; 0 ? &#x27;front&#x27; : &#x27;back&#x27;;
-  }
   /** 当前方向、当前竿的某个动作。V4 没有这一组就退回旧的单向动画 */
   function animKey(base) {
     var k = (fishing.dir4 || &#x27;right&#x27;) + &#x27;/&#x27; + (fishing.rodKey || &#x27;wood&#x27;) + &#x27;/&#x27; + base;
@@ -1376,13 +1372,12 @@ window.ArtClock = ArtClock;
       return;
     }
     if (eff) fishing.eff = eff;
-    fishing.hook = nearestSea(state.feet[0], state.feet[1]);   // 这一竿的落点
+    fishing.hook = facingWaterPoint() || nearestSea(state.feet[0], state.feet[1]);   // 往面朝的方向抛
     fishing.retrieve = 0;
     fishing.retrieveDone = false;
     fishing.pendingResult = null;
-    // 角色转过去面朝水面：左右为主用左右，上下为主用正面 / 背面
-    fishing.dir4 = facingToward(fishing.hook[0] - state.feet[0], fishing.hook[1] - state.feet[1]);
-    state.dir = { front: &#x27;down&#x27;, back: &#x27;up&#x27;, left: &#x27;left&#x27;, right: &#x27;right&#x27; }[fishing.dir4];
+    // 抛竿方向 = 玩家最后控制的朝向。朝下是正面，朝上是背面
+    fishing.dir4 = { down: &#x27;front&#x27;, up: &#x27;back&#x27;, left: &#x27;left&#x27;, right: &#x27;right&#x27; }[state.dir] || &#x27;front&#x27;;
     fishing.rodKey = ROD_ANIM[(enc.equipSnapshot &amp;&amp; enc.equipSnapshot.rod) || &#x27;&#x27;] || &#x27;wood&#x27;;
     fishing.v4Catch = false;
     if (FA) FA.ensureSet(fishing.dir4 + &#x27;/&#x27; + fishing.rodKey);
@@ -1907,6 +1902,8 @@ window.ArtClock = ArtClock;
       var dx = Math.abs(state.feet[0] - m[0]);
       var dy = state.feet[1] - m[1];
       if (dx &lt;= 60 &amp;&amp; dy &gt;= -10 &amp;&amp; dy &lt;= 90) return &#x27;shop&#x27;;
+      // 左下角的箱子，和灯塔里的箱子是同一个
+      if (Math.hypot(state.feet[0] - SHOP_CHEST[0], state.feet[1] - SHOP_CHEST[1]) &lt; 30) return &#x27;chest&#x27;;
       return null;
     }
 
@@ -1931,7 +1928,9 @@ window.ArtClock = ArtClock;
     if (state.scene === &#x27;coast&#x27;) {
       // 必须站在桥的边缘，不是整块桥面都行。
       // 判断办法：往外 10 像素就是海，说明脚下就是边。
-      return atDockEdge(state.feet[0], state.feet[1]) ? &#x27;fish&#x27; : null;
+      if (!atDockEdge(state.feet[0], state.feet[1])) return null;
+      // 站在桥边还不够，得面朝水面。面朝陆地就提示转过去
+      return facingWaterPoint() ? &#x27;fish&#x27; : &#x27;faceWater&#x27;;
     }
     return null;
   }
@@ -1981,6 +1980,23 @@ window.ArtClock = ArtClock;
       if (isSea(x + Math.cos(t) * SHORE_R, y + Math.sin(t) * SHORE_R)) return true;
     }
     return false;
+  }
+
+  /** 角色面朝的方向（单位向量） */
+  function facingVec() {
+    return { right: [1, 0], left: [-1, 0], down: [0, 1], up: [0, -1] }[state.dir] || [0, 1];
+  }
+  /**
+   * 顺着面朝的方向往前找水。找到就是这一竿的落点；找不到说明面朝陆地，不能抛。
+   * 抛竿方向完全由玩家最后控制的朝向决定，不自动转向水面。
+   */
+  function facingWaterPoint() {
+    var v = facingVec();
+    for (var r = 8; r &lt;= 90; r += 4) {
+      var x = state.feet[0] + v[0] * r, y = state.feet[1] + v[1] * r;
+      if (isSea(x, y)) return [x, y];
+    }
+    return null;
   }
 
   /** 最近的一小片海，用来决定鱼钩落点 */
@@ -2045,6 +2061,7 @@ window.ArtClock = ArtClock;
 
     var dt = lastFrame === null ? 0 : Math.min(0.1, (now - lastFrame) / 1000);
     lastFrame = now;
+    frameDtMs = dt * 1000;
 
     // 钓鱼时人不动，手势交给控鱼
     var frozen = fishing.phase !== &#x27;idle&#x27;;
@@ -2101,6 +2118,7 @@ window.ArtClock = ArtClock;
     tankPhase += 0.016;
     drawTank(ctx, state.tankCount);
     drawMounts(ctx);
+    drawTide(ctx, dtTide());
     drawBook(ctx);
     drawRack(ctx);
     drawSpotMarker(ctx, o.t);
@@ -2148,6 +2166,9 @@ window.ArtClock = ArtClock;
       g.restore();
       return;
     }
+
+    // 钓上来的不是鱼：不出「按住屏幕」这类钓鱼提示，直接收线
+    if (fishing.phase === &#x27;biting&#x27; &amp;&amp; e.loot) { g.restore(); return; }
 
     // 咬钩：整屏闪一下，提示赶紧按
     if (fishing.phase === &#x27;biting&#x27;) {
@@ -2440,6 +2461,101 @@ window.ArtClock = ArtClock;
     g.restore();
   }
 
+  /**
+   * 钓鱼潮。
+   * 海面上时不时跃出一到三条鱼，不用太多。开场有一行「钓鱼潮开始」。
+   */
+  var tide = { active: false, jumps: [], nextIn: 1200, banner: 0, title: &#x27;&#x27;, sub: &#x27;&#x27; };
+  var frameDtMs = 0;
+  /** 用每帧的间隔推进：暂停时不出帧，鱼也就停在半空 */
+  function dtTide() { return frameDtMs; }
+  function spawnJumps() {
+    var ids = FA ? Object.keys(window.__WF_FISH_SHEETS || {}) : [];
+    var n = 1 + Math.floor(Math.random() * 3);
+    for (var i = 0; i &lt; n; i++) {
+      // 在画面里随机找一块海，离岸有点距离
+      for (var tries = 0; tries &lt; 24; tries++) {
+        var x = state.camera[0] + 16 + Math.random() * (VW - 32);
+        var y = state.camera[1] + 40 + Math.random() * (VH - 120);
+        if (!isSea(x, y) || !isSea(x, y + 8) || !isSea(x - 10, y) || !isSea(x + 10, y)) continue;
+        tide.jumps.push({
+          x: x, y: y, t: -i * 180,                   // 同一批错开一点
+          dur: 800 + Math.random() * 400,
+          h: 14 + Math.random() * 14,
+          dx: (Math.random() &lt; 0.5 ? -1 : 1) * (10 + Math.random() * 12),
+          img: ids.length ? ids[Math.floor(Math.random() * ids.length)] : null,
+        });
+        break;
+      }
+    }
+  }
+  function drawTide(g, dt) {
+    if (tide.banner &gt; 0) tide.banner -= dt;
+    if (!tide.active &amp;&amp; !tide.jumps.length &amp;&amp; tide.banner &lt;= 0) return;
+    if (state.scene === &#x27;coast&#x27; &amp;&amp; tide.active &amp;&amp; !state.reduceMotion) {
+      tide.nextIn -= dt;
+      if (tide.nextIn &lt;= 0) { spawnJumps(); tide.nextIn = 2200 + Math.random() * 3800; }
+    }
+    g.save();
+    g.imageSmoothingEnabled = false;
+    for (var i = tide.jumps.length - 1; i &gt;= 0; i--) {
+      var j = tide.jumps[i];
+      j.t += dt;
+      if (j.t &gt;= j.dur + 400) { tide.jumps.splice(i, 1); continue; }
+      if (state.scene !== &#x27;coast&#x27;) continue;
+      var sx = j.x - state.camera[0], sy = j.y - state.camera[1];
+      var k = Math.max(0, Math.min(1, j.t / j.dur));
+      // 入水、出水两处水花
+      if (j.t &gt; -1) splash(g, sx, sy, j.t / 400);
+      if (j.t &gt; j.dur) splash(g, sx + j.dx, sy, (j.t - j.dur) / 400);
+      if (j.t &lt; 0 || j.t &gt; j.dur) continue;
+      var px = sx + j.dx * k;
+      var py = sy - Math.sin(k * Math.PI) * j.h;
+      var im = j.img &amp;&amp; FA ? FA.fishImage(j.img) : null;
+      g.save();
+      g.translate(px, py);
+      // 沿抛物线的切线方向转
+      g.rotate(Math.atan2(-Math.cos(k * Math.PI) * j.h * Math.PI, j.dx) * (j.dx &lt; 0 ? -1 : 1));
+      if (j.dx &gt; 0) g.scale(-1, 1);            // 鱼图头朝左，往右跳就翻过来
+      if (im &amp;&amp; im.width) {
+        var w = 18, h = w * im.height / im.width;
+        g.drawImage(im, -w / 2, -h / 2, w, h);
+      } else {
+        g.fillStyle = &#x27;#9FC4D8&#x27;;
+        g.fillRect(-5, -2, 10, 4);
+      }
+      g.restore();
+    }
+    g.restore();
+
+    if (tide.banner &gt; 0) {
+      var a = Math.min(1, tide.banner / 400, (3000 - tide.banner) / 300);
+      g.save();
+      g.globalAlpha = Math.max(0, a);
+      g.fillStyle = &#x27;rgba(12,14,26,0.72)&#x27;;
+      g.fillRect(0, VH * 0.22 - 22, VW, 44);
+      g.fillStyle = &#x27;#FFD470&#x27;;
+      g.font = &#x27;bold 16px -apple-system,sans-serif&#x27;;
+      g.textAlign = &#x27;center&#x27;;
+      g.fillText(tide.title || &#x27;钓鱼潮开始&#x27;, VW / 2, VH * 0.22 - 2);
+      g.font = &#x27;10px -apple-system,sans-serif&#x27;;
+      g.fillStyle = &#x27;#E8E9F5&#x27;;
+      g.fillText(tide.sub || &#x27;&#x27;, VW / 2, VH * 0.22 + 14);
+      g.restore();
+    }
+  }
+  function splash(g, x, y, t) {
+    if (t &lt; 0 || t &gt; 1) return;
+    g.save();
+    g.globalAlpha = 0.7 * (1 - t);
+    g.strokeStyle = &#x27;#DDF0FF&#x27;;
+    g.lineWidth = 1;
+    g.beginPath();
+    g.ellipse(x, y, 2 + t * 8, 1 + t * 3, 0, 0, Math.PI * 2);
+    g.stroke();
+    g.restore();
+  }
+
   /** 场景道具图：图鉴书、钓竿架 */
   var sceneImages = {};
   (function loadSceneArt() {
@@ -2637,6 +2753,9 @@ window.ArtClock = ArtClock;
       feet: state.feet.slice(),
       hook: fishing.hook ? fishing.hook.slice() : null,
       dir: state.dir,
+      action: currentAction(),
+      tideJumps: tide.jumps.length,
+      tideBanner: tide.banner &gt; 0,
     };
   };
 
@@ -2653,10 +2772,21 @@ window.ArtClock = ArtClock;
         state.feet = (m.state.feet || M.scenes[state.scene].spawn).slice();
         state.weather = m.state.weather || &#x27;clear&#x27;;
         state.hasRod = !!m.state.hasRod;
+        if (m.state.dir) state.dir = m.state.dir;
         state.reduceMotion = !!m.state.reduceMotion;
         updateCamera(true);
       }
       else if (m.type === &#x27;setReduceMotion&#x27;) { state.reduceMotion = !!m.value; }
+      else if (m.type === &#x27;tide&#x27;) {
+        var was = tide.active;
+        tide.active = !!m.active;
+        if (tide.active &amp;&amp; m.announce) {
+          tide.banner = 3000;
+          tide.title = m.title || &#x27;钓鱼潮开始&#x27;;
+          tide.sub = m.sub || &#x27;10 分钟内更容易钓到稀有的鱼&#x27;;
+        }
+        if (tide.active &amp;&amp; !was) tide.nextIn = 900;
+      }
       else if (m.type === &#x27;tankCount&#x27;) {
         state.tankCount = m.value | 0;
         if (m.slots) state.tankSlots = m.slots | 0;
@@ -2681,7 +2811,7 @@ window.ArtClock = ArtClock;
 
   // 每 3 秒把世界状态回传给宿主保存
   setInterval(function () {
-    post(&#x27;worldState&#x27;, { scene: state.scene, feet: state.feet, weather: state.weather, hasRod: state.hasRod });
+    post(&#x27;worldState&#x27;, { scene: state.scene, feet: state.feet, weather: state.weather, hasRod: state.hasRod, dir: state.dir });
   }, 3000);
 
   // ---------- 启动 ----------
@@ -2703,5 +2833,5 @@ window.ArtClock = ArtClock;
 })();
 &lt;/script&gt;
 &lt;/body&gt;
-&lt;/html&gt;" title="Will Fish" style="flex:1;width:100%;height:100%;border:none;background:#0A0B14" sandbox="allow-scripts allow-same-origin"></iframe><div class="css-g5y9jx r-1awozwy r-1p0dtai r-1777fci r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-633pao"><div dir="auto" class="css-146c3p1 r-15zsyk4 r-n6v787">正在唤醒灯塔…</div></div></div></div><!--/$--></div></div></div></div></div><!--/$--></div></div><script src="/Will-Plan/_expo/static/js/web/entry-4d4264598981a806828657df95919542.js" defer></script>
+&lt;/html&gt;" title="Will Fish" style="flex:1;width:100%;height:100%;border:none;background:#0A0B14" sandbox="allow-scripts allow-same-origin"></iframe><div class="css-g5y9jx r-1awozwy r-1p0dtai r-1777fci r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-633pao"><div dir="auto" class="css-146c3p1 r-15zsyk4 r-n6v787">正在唤醒灯塔…</div></div></div></div><!--/$--></div></div></div></div></div><!--/$--></div></div><script src="/Will-Plan/_expo/static/js/web/entry-f1390eda4c5d4f0b8265a09c2b0a031d.js" defer></script>
 </body></html>
