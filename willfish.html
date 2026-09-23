@@ -80,6 +80,7 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 .r-1wbguk4{border-bottom-left-radius:54px;border-bottom-right-radius:54px;border-top-left-radius:54px;border-top-right-radius:54px;}
 .r-1xfd6ze{border-bottom-left-radius:8px;border-bottom-right-radius:8px;border-top-left-radius:8px;border-top-right-radius:8px;}
 .r-1ylenci{border-bottom-left-radius:15px;border-bottom-right-radius:15px;border-top-left-radius:15px;border-top-right-radius:15px;}
+.r-37s7mv{border-bottom-color:rgba(91,168,255,1.00);border-left-color:rgba(91,168,255,1.00);border-right-color:rgba(91,168,255,1.00);border-top-color:rgba(91,168,255,1.00);}
 .r-3xxvc6{border-bottom-color:rgba(255,212,112,1.00);border-left-color:rgba(255,212,112,1.00);border-right-color:rgba(255,212,112,1.00);border-top-color:rgba(255,212,112,1.00);}
 .r-4a18lf{border-bottom-color:rgba(255,0,0,1.00);border-left-color:rgba(255,0,0,1.00);border-right-color:rgba(255,0,0,1.00);border-top-color:rgba(255,0,0,1.00);}
 .r-5gtviv{border-bottom-color:rgba(60,65,102,1.00);border-left-color:rgba(60,65,102,1.00);border-right-color:rgba(60,65,102,1.00);border-top-color:rgba(60,65,102,1.00);}
@@ -209,6 +210,7 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 .r-12vffkv>* {pointer-events:auto;}
 .r-12vffkv{pointer-events:none!important;}
 .r-135wba7{line-height:24px;}
+.r-136ojw6{z-index:2;}
 .r-13aq9py{animation-name:r-1iq689l;}
 .r-13hce6t{margin-left:4px;}
 .r-13qz1uu{width:100%;}
@@ -274,6 +276,7 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 .r-1c85bru{width:270px;}
 .r-1cad53l{margin-bottom:14px;}
 .r-1cmwbt1{gap:8px;}
+.r-1co8yb{background-color:rgba(58,46,18,1.00);}
 .r-1ct94d3{border-top-left-radius:22px;}
 .r-1cvj4g8{margin-top:1px;}
 .r-1d09ksm{align-items:baseline;}
@@ -327,6 +330,7 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 .r-1kb76zh{margin-right:8px;}
 .r-1kbyqej{border-top-color:rgba(33,39,71,1.00);}
 .r-1kfrs79{font-weight:600;}
+.r-1ki14p2{top:10px;}
 .r-1kihuf0{align-self:center;}
 .r-1kz6sp{width:52px;}
 .r-1ld3bg{top:-4px;}
@@ -348,6 +352,7 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 .r-1ny4l3l{outline-style:none;}
 .r-1o5hbq3{background-color:rgba(42,20,20,1.00);}
 .r-1ocf4r9{scroll-snap-type:y mandatory;}
+.r-1ojqf8o{color:rgba(91,168,255,1.00);}
 .r-1onu96p{border-curve:continuous;}
 .r-1oszu61{align-items:stretch;}
 .r-1otgn73{touch-action:manipulation;}
@@ -385,6 +390,7 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 .r-1ujkv8a{aspect-ratio:1;}
 .r-1upy0dh{letter-spacing:2px;}
 .r-1uq435t{background-color:rgba(23,26,56,0.95);}
+.r-1v279gl{background-color:rgba(18,40,58,1.00);}
 .r-1v30vm{background-color:rgba(47,107,85,1.00);}
 .r-1v5bw7l{color:rgba(63,217,160,1.00);}
 .r-1vr29t4{font-weight:800;}
@@ -468,6 +474,7 @@ input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-web
 .r-ah5dr5{pointer-events:auto!important;}
 .r-aqnst0{width:226px;}
 .r-aruset{font-weight:200;}
+.r-b88u0q{font-weight:700;}
 .r-bajy9j{height:230px;}
 .r-bi4vy9{transform:translateY(100%);}
 .r-bnwqim{position:relative;}
@@ -797,13 +804,22 @@ window.__WF_SPECIES = [{&quot;id&quot;:&quot;atlantic_herring&quot;,&quot;nameZh
     timerEnd: function (t) {
       [0, 4, 7, 12].forEach(function (d, i) { tone(t + i * 0.1, N(7 + d), 0.45, { type: &#x27;sine&#x27;, vol: 0.13 }); });
     },
+    // 灭火：一声轻轻的「噗」，像吹灭蜡烛，不是惩罚音
+    extinguish: function (t) {
+      noise(t, 0.45, { filter: &#x27;lowpass&#x27;, from: 900, to: 160, vol: 0.13, attack: 0.02 });
+      tone(t + 0.02, 180, 0.3, { type: &#x27;sine&#x27;, slideTo: 90, vol: 0.1 });
+    },
+    // 呼吸引导：吸气往上、呼气往下、屏住是一声很轻的提示
+    breatheIn: function (t) { tone(t, N(-5), 0.9, { type: &#x27;sine&#x27;, slideTo: N(4), vol: 0.1, attack: 0.25 }); },
+    breatheHold: function (t) { tone(t, N(4), 0.5, { type: &#x27;sine&#x27;, vol: 0.06, attack: 0.15 }); },
+    breatheOut: function (t) { tone(t, N(4), 1.2, { type: &#x27;sine&#x27;, slideTo: N(-8), vol: 0.1, attack: 0.3 }); },
     reminder: function (t) {
       tone(t, N(10), 0.35, { type: &#x27;sine&#x27;, vol: 0.14 });
       tone(t + 0.4, N(10), 0.35, { type: &#x27;sine&#x27;, vol: 0.14 });
     },
   };
   // 同一个音效的最短间隔（秒）
-  var MIN_GAP = { tap: 0.03, jump: 0.4 };
+  var MIN_GAP = { tap: 0.03, jump: 0.4, breatheIn: 0.5, breatheOut: 0.5, breatheHold: 0.5 };
 
   // ---------- 背景音乐 ----------
   // 每段是一个循环：lead 是旋律，bass 是低音，数字是相对 A4 的半音，null 是休止。
@@ -3186,5 +3202,5 @@ window.ArtClock = ArtClock;
 })();
 &lt;/script&gt;
 &lt;/body&gt;
-&lt;/html&gt;" title="Will Fish" style="flex:1;width:100%;height:100%;border:none;background:#0A0B14" sandbox="allow-scripts allow-same-origin"></iframe><div class="css-g5y9jx r-1awozwy r-1p0dtai r-1777fci r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-633pao"><div dir="auto" class="css-146c3p1 r-15zsyk4 r-n6v787">正在唤醒灯塔…</div></div></div></div><!--/$--></div></div></div></div></div><!--/$--></div></div><script src="/Will-Plan/_expo/static/js/web/entry-3ec74f3172372e2890591f4477bdd126.js" defer></script>
+&lt;/html&gt;" title="Will Fish" style="flex:1;width:100%;height:100%;border:none;background:#0A0B14" sandbox="allow-scripts allow-same-origin"></iframe><div class="css-g5y9jx r-1awozwy r-1p0dtai r-1777fci r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-633pao"><div dir="auto" class="css-146c3p1 r-15zsyk4 r-n6v787">正在唤醒灯塔…</div></div></div></div><!--/$--></div></div></div></div></div><!--/$--></div></div><script src="/Will-Plan/_expo/static/js/web/entry-a8897d903a6e7e8c2f4c4b142c46a2bc.js" defer></script>
 </body></html>
